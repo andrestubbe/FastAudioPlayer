@@ -1,6 +1,6 @@
-# FastAudioPlayer — Native Audio Playback for Java [ALPHA]
+# FastAudioPlayer — Native Audio Playback for Java
 
-> **Low-latency audio playback** — WASAPI native audio for Java, 10× lower latency than JavaFX/Media.
+> **Low-latency audio playback** — Real WASAPI native audio for Java, 10× lower latency than JavaFX/Media.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)

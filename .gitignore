@@ -1,0 +1,27 @@
+# Build directories
+target/
+build/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.project
+*.classpath
+.settings/
+
+# Native
+*.dll
+*.so
+*.dylib
+*.obj
+*.lib
+*.exp
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

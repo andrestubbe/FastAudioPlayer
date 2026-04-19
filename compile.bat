@@ -52,6 +52,8 @@ if %errorlevel% neq 0 (
             set "VSPATH=C:\Program Files\Microsoft Visual Studio\2022\Professional"
         ) else if exist "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" (
             set "VSPATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools" (
+            set "VSPATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
         )
     )
     

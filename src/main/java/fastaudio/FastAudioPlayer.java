@@ -68,7 +68,7 @@ public class FastAudioPlayer {
     private static native long getPosition(long handle);
     private static native long getDuration(long handle);
     private static native boolean isPlaying(long handle);
-    private static native String[] getDevices();
+    private static native String[] nativeGetDevices();
     private static native boolean setDevice(long handle, String deviceId);
     
     /**
@@ -188,7 +188,7 @@ public class FastAudioPlayer {
      * @return Array of device IDs
      */
     public static String[] getDevices() {
-        return getDevices();
+        return nativeGetDevices();
     }
     
     /**
@@ -217,12 +217,4 @@ public class FastAudioPlayer {
         }
     }
     
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            close();
-        } finally {
-            super.finalize();
-        }
-    }
 }

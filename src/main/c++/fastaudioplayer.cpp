@@ -74,7 +74,7 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_isPlaying(JNIEnv* env,
     return JNI_FALSE;
 }
 
-JNIEXPORT jobjectArray JNICALL Java_fastaudio_FastAudioPlayer_getDevices(JNIEnv* env, jclass clazz) {
+JNIEXPORT jobjectArray JNICALL Java_fastaudio_FastAudioPlayer_nativeGetDevices(JNIEnv* env, jclass clazz) {
     jobjectArray result = env->NewObjectArray(1, env->FindClass("java/lang/String"), nullptr);
     jstring defaultDevice = env->NewStringUTF("Default");
     env->SetObjectArrayElement(result, 0, defaultDevice);

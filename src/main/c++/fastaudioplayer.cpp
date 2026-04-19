@@ -123,8 +123,6 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
     format.wBitsPerSample = *(WORD*)(header + 34);
     format.cbSize = 0;
     
-            format.wFormatTag, format.nChannels, format.nSamplesPerSec, format.wBitsPerSample);
-    
     // Check for extended format (WAVEFORMATEXTENSIBLE)
     if (format.wFormatTag == 0xFFFE && format.cbSize >= 22) {
         // Extended header - read SubFormat GUID at offset 24
@@ -151,8 +149,6 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
     BYTE chunkHeader[8];
     DWORD dataSize = 0;
     
-            fmtChunkSize, pos, fileSize);
-    
     while (pos < fileSize) {
         SetFilePointer(hFile, pos, nullptr, FILE_BEGIN);
         if (!ReadFile(hFile, chunkHeader, 8, &bytesRead, nullptr) || bytesRead != 8) {
@@ -169,7 +165,6 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
             
             if (ReadFile(hFile, audioData.data(), dataSize, &bytesRead, nullptr)) {
                 audioData.resize(bytesRead);
-            } else {
             }
             break;
         }
@@ -267,8 +262,9 @@ extern "C" {
 JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_createPlayer(JNIEnv* env, jclass clazz) {
     AudioPlayer* player = new AudioPlayer();
     
+    // Initialize COM - S_FALSE is also OK (already initialized)
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (FAILED(hr)) {
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
         delete player;
         return 0;
     }
@@ -283,6 +279,7 @@ JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_createPlayer(JNIEnv* env,
     );
     
     if (FAILED(hr)) {
+        CoUninitialize();
         delete player;
         return 0;
     }
@@ -299,7 +296,6 @@ JNIEXPORT void JNICALL Java_fastaudio_FastAudioPlayer_destroyPlayer(JNIEnv* env,
 }
 
 JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, jclass clazz, jlong handle, jstring filePath) {
-    fprintf(stderr, "[Java_loadFile] Called with handle=%lld\n", handle);
     if (!handle) return JNI_FALSE;
     
     AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
@@ -321,33 +317,23 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
     player->totalSamples = player->audioData.size() / player->waveFormat.nBlockAlign;
     player->currentPosition = 0;
     
-    fprintf(stderr, "[Java_loadFile] WAV loaded, samples=%lu, nBlockAlign=%d\n", 
-            player->totalSamples, player->waveFormat.nBlockAlign);
-    fprintf(stderr, "[Java_loadFile] Format: %dHz, %dch, %dbits\n",
-            player->waveFormat.nSamplesPerSec, player->waveFormat.nChannels, player->waveFormat.wBitsPerSample);
-    
     // Get default audio device
-    fprintf(stderr, "[Java_loadFile] Getting default endpoint...\n");
     HRESULT hr = player->deviceEnumerator->GetDefaultAudioEndpoint(
         eRender, eConsole, &player->audioDevice
     );
     if (FAILED(hr)) {
-        fprintf(stderr, "[Java_loadFile] GetDefaultAudioEndpoint failed: 0x%08X\n", hr);
         return JNI_FALSE;
     }
     
     // Activate audio client
-    fprintf(stderr, "[Java_loadFile] Activating audio client...\n");
     hr = player->audioDevice->Activate(
         __uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&player->audioClient
     );
     if (FAILED(hr)) {
-        fprintf(stderr, "[Java_loadFile] Activate failed: 0x%08X\n", hr);
         return JNI_FALSE;
     }
     
     // Initialize audio client
-    fprintf(stderr, "[Java_loadFile] Initializing audio client...\n");
     REFERENCE_TIME bufferDuration = 10000000; // 1 second
     hr = player->audioClient->Initialize(
         AUDCLNT_SHAREMODE_SHARED,
@@ -358,10 +344,8 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
         nullptr
     );
     if (FAILED(hr)) {
-        fprintf(stderr, "[Java_loadFile] Initialize failed: 0x%08X\n", hr);
         return JNI_FALSE;
     }
-    fprintf(stderr, "[Java_loadFile] Audio client initialized successfully\n");
     
     // Get buffer size
     hr = player->audioClient->GetBufferSize(&player->bufferFrameCount);

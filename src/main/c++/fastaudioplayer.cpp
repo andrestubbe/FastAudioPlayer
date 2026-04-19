@@ -32,7 +32,8 @@ struct AudioPlayer {
     std::atomic<float> volume{1.0f};
     
     std::vector<BYTE> audioData;
-    WAVEFORMATEX waveFormat{};
+    WAVEFORMATEX waveFormat{};        // Format used by WASAPI (mix format)
+    WAVEFORMATEX sourceFormat{};     // Original WAV file format
     UINT32 bufferFrameCount = 0;
     UINT32 currentPosition = 0;
     UINT32 totalSamples = 0;
@@ -310,11 +311,14 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
     if (path.empty()) return JNI_FALSE;
     
     // Parse WAV file
-    if (!ParseWavFile(path.c_str(), player->audioData, player->waveFormat)) {
+    if (!ParseWavFile(path.c_str(), player->audioData, player->sourceFormat)) {
         return JNI_FALSE;
     }
     
-    player->totalSamples = player->audioData.size() / player->waveFormat.nBlockAlign;
+    // Store original format
+    player->waveFormat = player->sourceFormat;
+    
+    player->totalSamples = player->audioData.size() / player->sourceFormat.nBlockAlign;
     player->currentPosition = 0;
     
     // Get default audio device
@@ -333,7 +337,7 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
         return JNI_FALSE;
     }
     
-    // Initialize audio client
+    // Initialize audio client with WAV format (should work for 16-bit PCM)
     REFERENCE_TIME bufferDuration = 10000000; // 1 second
     hr = player->audioClient->Initialize(
         AUDCLNT_SHAREMODE_SHARED,
@@ -343,6 +347,36 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
         &player->waveFormat,
         nullptr
     );
+    
+    if (FAILED(hr)) {
+        // WAV format not supported, get mix format
+        WAVEFORMATEX* mixFormat = nullptr;
+        HRESULT hr2 = player->audioClient->GetMixFormat(&mixFormat);
+        if (SUCCEEDED(hr2)) {
+            // Try with mix format
+            player->audioClient->Release();
+            player->audioClient = nullptr;
+            
+            hr = player->audioDevice->Activate(
+                __uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&player->audioClient
+            );
+            if (SUCCEEDED(hr)) {
+                hr = player->audioClient->Initialize(
+                    AUDCLNT_SHAREMODE_SHARED,
+                    0,
+                    bufferDuration,
+                    0,
+                    mixFormat,
+                    nullptr
+                );
+                if (SUCCEEDED(hr)) {
+                    player->waveFormat = *mixFormat;
+                }
+            }
+            CoTaskMemFree(mixFormat);
+        }
+    }
+    
     if (FAILED(hr)) {
         return JNI_FALSE;
     }

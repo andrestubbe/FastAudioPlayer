@@ -95,7 +95,9 @@ jstring WStringToJString(JNIEnv* env, const std::wstring& wstr) {
 // Parse WAV file header
 bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFORMATEX& format) {
     HANDLE hFile = CreateFileW(filePath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-    if (hFile == INVALID_HANDLE_VALUE) return false;
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return false;
+    }
     
     // Read RIFF header
     BYTE header[44];
@@ -111,6 +113,7 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
         return false;
     }
     
+    
     // Parse format
     format.wFormatTag = *(WORD*)(header + 20);
     format.nChannels = *(WORD*)(header + 22);
@@ -120,17 +123,45 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
     format.wBitsPerSample = *(WORD*)(header + 34);
     format.cbSize = 0;
     
+            format.wFormatTag, format.nChannels, format.nSamplesPerSec, format.wBitsPerSample);
+    
+    // Check for extended format (WAVEFORMATEXTENSIBLE)
+    if (format.wFormatTag == 0xFFFE && format.cbSize >= 22) {
+        // Extended header - read SubFormat GUID at offset 24
+        WORD extSize = *(WORD*)(header + 36);
+        WORD validBits = *(WORD*)(header + 38);
+        DWORD channelMask = *(DWORD*)(header + 40);
+        // SubFormat GUID at offset 44
+        WORD subFormatLow = *(WORD*)(header + 44);
+        // If subformat indicates PCM (1), use PCM
+        if (subFormatLow == 1) {
+            format.wFormatTag = WAVE_FORMAT_PCM;
+        }
+    }
+    
+    // Calculate actual position after fmt chunk
+    // Standard WAV: fmt chunk is at offset 12, size is at offset 16
+    DWORD fmtChunkSize = *(DWORD*)(header + 16);
+    DWORD pos = 12 + 8 + fmtChunkSize;  // 12 ("RIFF"+size+"WAVE") + 8 ("fmt "+size) + fmtChunkSize
+    // Align to word boundary
+    if (fmtChunkSize % 2) pos++;
+    
     // Find "data" chunk
     DWORD fileSize = *(DWORD*)(header + 4) + 8;
-    DWORD pos = 44;
     BYTE chunkHeader[8];
     DWORD dataSize = 0;
     
+            fmtChunkSize, pos, fileSize);
+    
     while (pos < fileSize) {
         SetFilePointer(hFile, pos, nullptr, FILE_BEGIN);
-        if (!ReadFile(hFile, chunkHeader, 8, &bytesRead, nullptr) || bytesRead != 8) break;
+        if (!ReadFile(hFile, chunkHeader, 8, &bytesRead, nullptr) || bytesRead != 8) {
+            break;
+        }
         
         DWORD chunkSize = *(DWORD*)(chunkHeader + 4);
+        char chunkName[5] = {0};
+        memcpy(chunkName, chunkHeader, 4);
         
         if (memcmp(chunkHeader, "data", 4) == 0) {
             dataSize = chunkSize;
@@ -138,6 +169,7 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
             
             if (ReadFile(hFile, audioData.data(), dataSize, &bytesRead, nullptr)) {
                 audioData.resize(bytesRead);
+            } else {
             }
             break;
         }

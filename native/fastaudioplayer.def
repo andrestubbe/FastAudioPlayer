@@ -1,0 +1,16 @@
+LIBRARY fastaudioplayer
+EXPORTS
+    Java_fastaudio_FastAudioPlayer_createPlayer
+    Java_fastaudio_FastAudioPlayer_destroyPlayer
+    Java_fastaudio_FastAudioPlayer_loadFile
+    Java_fastaudio_FastAudioPlayer_play
+    Java_fastaudio_FastAudioPlayer_pause
+    Java_fastaudio_FastAudioPlayer_resume
+    Java_fastaudio_FastAudioPlayer_stop
+    Java_fastaudio_FastAudioPlayer_setVolume
+    Java_fastaudio_FastAudioPlayer_getVolume
+    Java_fastaudio_FastAudioPlayer_getPosition
+    Java_fastaudio_FastAudioPlayer_getDuration
+    Java_fastaudio_FastAudioPlayer_isPlaying
+    Java_fastaudio_FastAudioPlayer_nativeGetDevices
+    Java_fastaudio_FastAudioPlayer_setDevice

@@ -1,7 +1,7 @@
 import fastaudio.FastAudioPlayer;
 
 public class Test {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("=== FastAudioPlayer Test ===");
         
         // Test 1: Get devices
@@ -17,8 +17,8 @@ public class Test {
         System.out.println("   ✓ Player created");
         
         // Test 3: Load file
-        System.out.println("\n3. Loading test.mp3...");
-        boolean loaded = player.load("test.mp3");
+        System.out.println("\n3. Loading beep.wav...");
+        boolean loaded = player.load("beep.wav");
         System.out.println("   Loaded: " + loaded);
         
         // Test 4: Get duration
@@ -29,20 +29,27 @@ public class Test {
         System.out.println("\n4. Volume control:");
         float vol = player.getVolume();
         System.out.println("   Default volume: " + vol);
-        player.setVolume(0.5f);
-        System.out.println("   Set to 0.5, now: " + player.getVolume());
+        player.setVolume(1.0f);
+        System.out.println("   Set to 1.0 (MAX), now: " + player.getVolume());
         
-        // Test 6: Playback controls
-        System.out.println("\n5. Playback controls:");
+        // Test 6: Playback once
+        System.out.println("\n5. Playing audio (you should hear a 440Hz tone for 3 seconds)...");
+        boolean playing = player.play();
+        System.out.println("   play(): " + playing);
         System.out.println("   isPlaying: " + player.isPlaying());
-        System.out.println("   play(): " + player.play());
-        System.out.println("   isPlaying: " + player.isPlaying());
-        System.out.println("   pause(): " + player.pause());
-        System.out.println("   resume(): " + player.resume());
-        System.out.println("   stop(): " + player.stop());
+        
+        if (playing) {
+            System.out.println("   Listening...");
+            while (player.isPlaying()) {
+                Thread.sleep(100);
+                System.out.printf("\r   Position: %d ms / %d ms", player.getPosition(), player.getDuration());
+            }
+            System.out.println();
+            System.out.println("   Playback finished!");
+        }
         
         // Test 7: Position
-        System.out.println("\n6. Position: " + player.getPosition() + " ms");
+        System.out.println("\n6. Final Position: " + player.getPosition() + " ms");
         
         // Clean up
         System.out.println("\n7. Closing player...");

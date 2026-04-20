@@ -99,12 +99,15 @@ cl.exe ^
     /I"%WindowsSdkDir%Include\%WindowsSDKVersion%\shared" ^
     /I"%WindowsSdkDir%Include\%WindowsSDKVersion%\ucrt" ^
     /I"%VSPATH%\VC\Tools\MSVC\%VCToolsVersion%\include" ^
-    ..\src\main\c++\fastaudioplayer.cpp ^
+    ..\native\src\fastaudioplayer.cpp ^
     /link ^
     /DLL ^
     /OUT:fastaudioplayer.dll ^
+    /DEF:..\native\fastaudioplayer.def ^
     kernel32.lib ^
-    user32.lib
+    user32.lib ^
+    winmm.lib ^
+    ole32.lib
 
 if errorlevel 1 (
     echo.

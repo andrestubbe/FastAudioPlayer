@@ -1,0 +1,92 @@
+================================================================================
+FastAudioPlayer v1.0.0 - Release Package
+================================================================================
+
+QUICK START (Copy & Paste)
+--------------------------------------------------------------------------------
+
+1. BUILD FAT JAR (includes native DLL):
+   mvn clean package -DskipTests
+
+2. RUN CONSOLE BENCHMARK:
+   java --enable-native-access=ALL-UNNAMED -cp "target/fastaudioplayer-1.0.0.jar;examples" ConsoleBenchmark
+
+3. RUN BASIC TEST:
+   java --enable-native-access=ALL-UNNAMED -cp "target/fastaudioplayer-1.0.0.jar;." Test
+
+4. BUILD NATIVE DLL (Windows):
+   compile.bat
+
+================================================================================
+
+PACKAGE CONTENTS
+--------------------------------------------------------------------------------
+
+📦 fastaudioplayer-1.0.0.jar      - FAT JAR with embedded DLL
+📁 examples/
+   ├── ConsoleBenchmark.java      - Benchmark demo (WASAPI vs Java Sound)
+   └── AudioPlayerGUI.java        - GUI demo
+📁 native/
+   ├── fastaudioplayer.def        - JNI exports
+   └── src/
+       ├── fastaudioplayer.cpp    - WASAPI implementation
+       └── fastaudioplayer.h      - Header
+📄 compile.bat                    - Windows build script
+📄 README.md                      - Full documentation
+
+================================================================================
+
+REQUIREMENTS
+--------------------------------------------------------------------------------
+- Windows 10/11 (x64)
+- JDK 17+ (JDK 21 or 25 recommended)
+- For building: Visual Studio 2019+ (Community/Enterprise/BuildTools)
+
+================================================================================
+
+API EXAMPLE
+--------------------------------------------------------------------------------
+
+import fastaudio.FastAudioPlayer;
+
+public class Demo {
+    public static void main(String[] args) {
+        FastAudioPlayer player = new FastAudioPlayer();
+        
+        // Load audio file
+        player.load("music.wav");
+        
+        // Set volume (0.0 to 1.0)
+        player.setVolume(0.8f);
+        
+        // Play
+        player.play();
+        
+        // Wait for completion
+        while (player.isPlaying()) {
+            Thread.sleep(100);
+        }
+        
+        player.close();
+    }
+}
+
+Compile & Run:
+javac -cp fastaudioplayer-1.0.0.jar Demo.java
+java --enable-native-access=ALL-UNNAMED -cp "fastaudioplayer-1.0.0.jar;." Demo
+
+================================================================================
+
+PERFORMANCE
+--------------------------------------------------------------------------------
+WASAPI Native: ~50-70ms startup (16x faster than Java Sound API)
+Java Sound API: ~1000-1200ms startup
+
+================================================================================
+
+LINKS
+--------------------------------------------------------------------------------
+GitHub: https://github.com/andrestubbe/fastaudioplayer
+Issues: https://github.com/andrestubbe/fastaudioplayer/issues
+
+================================================================================

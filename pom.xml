@@ -101,12 +101,6 @@
                         <configuration>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                                    <resource>fastaudioplayer.dll</resource>
-                                    <file>src/main/resources/fastaudioplayer.dll</file>
-                                </transformer>
-                            </transformers>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>

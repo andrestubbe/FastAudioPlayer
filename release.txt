@@ -84,6 +84,19 @@ Java Sound API: ~1000-1200ms startup
 
 ================================================================================
 
+FEATURES
+--------------------------------------------------------------------------------
+✓ WASAPI Native playback (low latency)
+✓ WAV file support (16/24/32-bit, mono/stereo)
+✓ Volume control (0.0 - 1.0)
+✓ Play/Pause/Stop controls
+✓ Position tracking
+✓ Multiple output devices
+✓ Console benchmark demo
+✓ FAT JAR (no external DLL needed)
+
+================================================================================
+
 LINKS
 --------------------------------------------------------------------------------
 GitHub: https://github.com/andrestubbe/fastaudioplayer

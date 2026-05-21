@@ -41,7 +41,7 @@ public class Demo {
 - [Performance](#performance)
 - [API Quick Reference](#api-quick-reference)
 - [Installation](#installation)
-- [Technical Examples & Hero Demos](#technical-examples--hero-demos)
+- [Technical Examples](#technical-examples)
 - [Documentation](#documentation)
 - [Platform Support](#platform-support)
 - [License](#license)
@@ -128,9 +128,14 @@ dependencies {
 }
 ```
 
+### Option 3: Direct Download
+For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the GitHub releases page:
+1. 📦 **[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/v0.1.0/fastaudioplayer-0.1.0.jar)**
+2. ⚙️ **[fastcore-v0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/v0.1.0/fastcore-v0.1.0.jar)**
+
 ---
 
-## Technical Examples & Hero Demos
+## Technical Examples
 We provide high-quality, standalone, blueprint-compliant examples inside the [examples/](examples/) directory:
 *   [**Interactive Console Demo**](examples/Demo) — An interactive terminal audio player featuring active audio device query, real-time volume controls, crisp 440Hz sine wave auto-generation, and a smooth real-time visual progress bar.
 *   [**Precision Latency Benchmark**](examples/Benchmark) — Side-by-side precision latency benchmark comparing Windows WASAPI Native (`FastAudioPlayer`) against standard Java Sound (`javax.sound.sampled.SourceDataLine`) over multiple iterations.

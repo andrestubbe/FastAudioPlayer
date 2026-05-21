@@ -10,16 +10,16 @@ An interactive console-based audio player. It queries all active WASAPI endpoint
 To run it locally:
 ```bash
 cd Demo
-mvn compile exec:java
+mvn compile exec:exec
 ```
 
 ### 📊 2. Benchmark
-A precision benchmark comparing Windows WASAPI Native (`FastAudioPlayer`) against standard JavaSound (`javax.sound.sampled.SourceDataLine`). It scientifically measures Time To First Sample (TTFS) latency, highlighting the massive 10x-100x latency speedup of our native WASAPI engine!
+A precision benchmark comparing Windows WASAPI Native (`FastAudioPlayer`) against standard JavaSound (`javax.sound.sampled.SourceDataLine`). It scientifically measures Time To First Sample (TTFS) latency, highlighting the massive **~22x average latency speedup** of our native WASAPI engine!
 
 To run it:
 ```bash
 cd Benchmark
-mvn compile exec:java
+mvn compile exec:exec
 ```
 
 ---

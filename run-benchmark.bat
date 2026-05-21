@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo ⚡ Building and Installing Main Project (FastAudioPlayer)...
 call mvn clean install -DskipTests -q
 if %ERRORLEVEL% NEQ 0 ( 

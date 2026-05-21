@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo ⚡ Building and Installing Main Project (FastAudioPlayer)...
 call mvn clean install -DskipTests -q
 if %ERRORLEVEL% NEQ 0 ( 
@@ -6,7 +7,7 @@ if %ERRORLEVEL% NEQ 0 (
     pause 
     exit /b 
 )
-echo 🚀 Running Hero Console Demo...
+echo Running Console Demo...
 cd examples\Demo
 call mvn compile exec:exec -q
 cd ..\..

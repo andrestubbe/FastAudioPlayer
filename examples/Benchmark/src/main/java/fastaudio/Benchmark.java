@@ -1,33 +1,35 @@
+package fastaudio;
+
 import fastaudio.FastAudioPlayer;
 import javax.sound.sampled.*;
 import java.io.File;
+import java.io.FileOutputStream;
 
 /**
- * Console Benchmark - Compare WASAPI vs Java Sound API
+ * FastAudioPlayer Benchmark
  * 
- * Run: java --enable-native-access=ALL-UNNAMED -cp "fastaudioplayer.jar;." ConsoleBenchmark
+ * Compares Time To First Sample (TTFS) latency and overhead between
+ * standard JavaSound (javax.sound.sampled) and native WASAPI (FastAudioPlayer).
  */
-public class ConsoleBenchmark {
+public class Benchmark {
     
     public static void main(String[] args) throws Exception {
-        String wavFile = args.length > 0 ? args[0] : "test.wav";
+        String wavFile = args.length > 0 ? args[0] : "beep.wav";
         int iterations = args.length > 1 ? Integer.parseInt(args[1]) : 3;
         
         System.out.println("╔════════════════════════════════════════════════════════════╗");
-        System.out.println("║     FastAudioPlayer - Console Benchmark Demo              ║");
+        System.out.println("║     FastAudioPlayer - Console Latency Benchmark            ║");
         System.out.println("╚════════════════════════════════════════════════════════════╝");
         System.out.println();
         System.out.println("File: " + wavFile);
         System.out.println("Iterations: " + iterations);
         System.out.println();
         
-        // Check if file exists
+        // Auto-create test file if not present
         if (!new File(wavFile).exists()) {
-            System.out.println("❌ WAV file not found: " + wavFile);
-            System.out.println("   Creating test.wav...");
-            createTestWav(wavFile);
-            System.out.println("   ✓ Created " + wavFile);
-            System.out.println();
+            System.out.println("🔊 '" + wavFile + "' not found. Generating a clean 440Hz sine wave...");
+            generateBeepWav(wavFile);
+            System.out.println("  ✓ Generated successfully.\n");
         }
         
         // Benchmark 1: Java Sound API
@@ -61,7 +63,7 @@ public class ConsoleBenchmark {
     static long benchmarkJavaSound(String filePath, int iterations) throws Exception {
         long totalTime = 0;
         System.out.println("  Warmup...");
-        playWithJavaSound(filePath); // Warmup
+        playWithJavaSound(filePath);
         
         for (int i = 1; i <= iterations; i++) {
             long start = System.nanoTime();
@@ -103,7 +105,7 @@ public class ConsoleBenchmark {
     static long benchmarkWasapi(String filePath, int iterations) throws Exception {
         long totalTime = 0;
         System.out.println("  Warmup...");
-        playWithWasapi(filePath); // Warmup
+        playWithWasapi(filePath);
         
         for (int i = 1; i <= iterations; i++) {
             long start = System.nanoTime();
@@ -144,21 +146,17 @@ public class ConsoleBenchmark {
         }
     }
     
-    static void createTestWav(String filename) throws Exception {
-        // Create a simple 1-second beep
+    private static void generateBeepWav(String filename) throws Exception {
         int sampleRate = 44100;
-        int duration = 1;
+        int duration = 1; // 1 second for benchmark
         int frequency = 440;
         int numSamples = sampleRate * duration;
         int dataSize = numSamples * 2;
         
-        try (java.io.FileOutputStream out = new java.io.FileOutputStream(filename)) {
-            // RIFF header
+        try (FileOutputStream out = new FileOutputStream(filename)) {
             out.write("RIFF".getBytes());
             writeInt(out, 36 + dataSize);
             out.write("WAVE".getBytes());
-            
-            // fmt chunk
             out.write("fmt ".getBytes());
             writeInt(out, 16);
             writeShort(out, (short) 1);
@@ -167,12 +165,9 @@ public class ConsoleBenchmark {
             writeInt(out, sampleRate * 2);
             writeShort(out, (short) 2);
             writeShort(out, (short) 16);
-            
-            // data chunk
             out.write("data".getBytes());
             writeInt(out, dataSize);
             
-            // Generate sine wave
             for (int i = 0; i < numSamples; i++) {
                 double time = i / (double) sampleRate;
                 double sample = 0.5 * Math.sin(2 * Math.PI * frequency * time);
@@ -182,14 +177,14 @@ public class ConsoleBenchmark {
         }
     }
     
-    static void writeInt(java.io.FileOutputStream out, int value) throws Exception {
+    private static void writeInt(FileOutputStream out, int value) throws Exception {
         out.write(value & 0xFF);
         out.write((value >> 8) & 0xFF);
         out.write((value >> 16) & 0xFF);
         out.write((value >> 24) & 0xFF);
     }
     
-    static void writeShort(java.io.FileOutputStream out, short value) throws Exception {
+    private static void writeShort(FileOutputStream out, short value) throws Exception {
         out.write(value & 0xFF);
         out.write((value >> 8) & 0xFF);
     }

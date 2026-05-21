@@ -21,7 +21,7 @@ import java.nio.file.StandardCopyOption;
  * </ul>
  * 
  * @author FastJava Team
- * @version 1.0.0
+ * @version 0.1.0
  */
 public class FastAudioPlayer {
     

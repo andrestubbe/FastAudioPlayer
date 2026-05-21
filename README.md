@@ -136,7 +136,7 @@ For projects without build tools, download the pre-compiled native jar and its r
 ---
 
 ## Technical Examples
-We provide high-quality, standalone, blueprint-compliant examples inside the [examples/](examples/) directory:
+We provide high-quality, standalone examples inside the [examples/](examples/) directory:
 *   [**Interactive Console Demo**](examples/Demo) — An interactive terminal audio player featuring active audio device query, real-time volume controls, crisp 440Hz sine wave auto-generation, and a smooth real-time visual progress bar.
 *   [**Precision Latency Benchmark**](examples/Benchmark) — Side-by-side precision latency benchmark comparing Windows WASAPI Native (`FastAudioPlayer`) against standard Java Sound (`javax.sound.sampled.SourceDataLine`) over multiple iterations.
 

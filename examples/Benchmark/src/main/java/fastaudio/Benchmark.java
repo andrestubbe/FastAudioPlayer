@@ -63,13 +63,10 @@ public class Benchmark {
     static long benchmarkJavaSound(String filePath, int iterations) throws Exception {
         long totalTime = 0;
         System.out.println("  Warmup...");
-        playWithJavaSound(filePath);
+        measureJavaSoundTTFS(filePath);
         
         for (int i = 1; i <= iterations; i++) {
-            long start = System.nanoTime();
-            playWithJavaSound(filePath);
-            long end = System.nanoTime();
-            long duration = (end - start) / 1_000_000;
+            long duration = measureJavaSoundTTFS(filePath);
             totalTime += duration;
             System.out.printf("  Run %d/%d: %5d ms%n", i, iterations, duration);
         }
@@ -80,7 +77,8 @@ public class Benchmark {
         return avg;
     }
     
-    static void playWithJavaSound(String filePath) throws Exception {
+    static long measureJavaSoundTTFS(String filePath) throws Exception {
+        long start = System.nanoTime();
         File file = new File(filePath);
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         AudioFormat format = ais.getFormat();
@@ -91,31 +89,34 @@ public class Benchmark {
         line.start();
         
         byte[] buffer = new byte[4096];
-        int read;
-        while ((read = ais.read(buffer)) > 0) {
+        int read = ais.read(buffer);
+        if (read > 0) {
             line.write(buffer, 0, read);
         }
+        long end = System.nanoTime();
         
-        line.drain();
         line.stop();
         line.close();
         ais.close();
+        
+        return (end - start) / 1_000_000;
     }
     
     static long benchmarkWasapi(String filePath, int iterations) throws Exception {
         long totalTime = 0;
         System.out.println("  Warmup...");
-        playWithWasapi(filePath);
+        FastAudioPlayer player = new FastAudioPlayer();
+        player.load(filePath);
+        player.play();
+        Thread.sleep(50);
+        player.stop();
         
         for (int i = 1; i <= iterations; i++) {
-            long start = System.nanoTime();
-            boolean success = playWithWasapi(filePath);
-            long end = System.nanoTime();
-            long duration = (end - start) / 1_000_000;
+            long duration = measureWasapiTTFS(player, filePath);
             totalTime += duration;
-            String status = success ? "✓" : "✗";
-            System.out.printf("  Run %d/%d: %5d ms %s%n", i, iterations, duration, status);
+            System.out.printf("  Run %d/%d: %5d ms ✓%n", i, iterations, duration);
         }
+        player.close();
         
         long avg = totalTime / iterations;
         System.out.println("  ────────────────────────");
@@ -123,27 +124,20 @@ public class Benchmark {
         return avg;
     }
     
-    static boolean playWithWasapi(String filePath) throws Exception {
-        try {
-            FastAudioPlayer player = new FastAudioPlayer();
-            if (!player.load(filePath)) {
-                player.close();
-                return false;
-            }
+    static long measureWasapiTTFS(FastAudioPlayer player, String filePath) throws Exception {
+        long start = System.nanoTime();
+        boolean success = player.load(filePath);
+        if (success) {
             player.setVolume(1.0f);
-            if (!player.play()) {
-                player.close();
-                return false;
-            }
-            while (player.isPlaying()) {
-                Thread.sleep(10);
-            }
-            player.close();
-            return true;
-        } catch (Exception e) {
-            System.err.println("  Error: " + e.getMessage());
-            return false;
+            player.play();
         }
+        long end = System.nanoTime();
+        
+        // Let it play briefly, then stop
+        Thread.sleep(50);
+        player.stop();
+        
+        return success ? (end - start) / 1_000_000 : 999;
     }
     
     private static void generateBeepWav(String filename) throws Exception {

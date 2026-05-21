@@ -198,10 +198,20 @@ void PlaybackThread(AudioPlayer* player) {
             continue;
         }
         
-        // Get buffer size
+        // Get buffer size / current padding
         UINT32 currentPadding;
         hr = player->audioClient->GetCurrentPadding(&currentPadding);
         if (FAILED(hr)) break;
+        
+        // If we have written all samples, wait for the buffer to drain completely
+        if (player->currentPosition >= player->totalSamples) {
+            if (currentPadding == 0) {
+                player->isPlaying = false;
+                break;
+            }
+            Sleep(5);
+            continue;
+        }
         
         numFramesAvailable = player->bufferFrameCount - currentPadding;
         
@@ -263,9 +273,7 @@ void PlaybackThread(AudioPlayer* player) {
                 
                 player->currentPosition += framesToCopy;
             } else {
-                // End of file - write silence
                 memset(pData, 0, bytesAvailable);
-                player->isPlaying = false;
             }
             
             // Release buffer
@@ -273,11 +281,6 @@ void PlaybackThread(AudioPlayer* player) {
             if (FAILED(hr)) break;
         } else {
             Sleep(1);
-        }
-        
-        // Check if finished
-        if (player->currentPosition >= player->totalSamples) {
-            player->isPlaying = false;
         }
     }
     

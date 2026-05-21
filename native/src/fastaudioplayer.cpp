@@ -185,14 +185,6 @@ void PlaybackThread(AudioPlayer* player) {
     BYTE* pData;
     DWORD flags = 0;
     
-    fprintf(stderr, "[Playback] Thread started\n");
-    fprintf(stderr, "[Playback] Source: %dHz %dbit %dch, align=%d\n", 
-            player->sourceFormat.nSamplesPerSec, player->sourceFormat.wBitsPerSample, 
-            player->sourceFormat.nChannels, player->sourceFormat.nBlockAlign);
-    fprintf(stderr, "[Playback] Output: %dHz %dbit %dch, align=%d\n", 
-            player->waveFormat.nSamplesPerSec, player->waveFormat.wBitsPerSample, 
-            player->waveFormat.nChannels, player->waveFormat.nBlockAlign);
-    
     // Start audio client
     hr = player->audioClient->Start();
     if (FAILED(hr)) {
@@ -216,14 +208,8 @@ void PlaybackThread(AudioPlayer* player) {
         if (numFramesAvailable > 0) {
             // Get buffer
             hr = player->renderClient->GetBuffer(numFramesAvailable, &pData);
-            if (FAILED(hr)) {
-                fprintf(stderr, "[Playback] GetBuffer failed: 0x%08X\n", hr);
-                break;
-            }
-            if (!pData) {
-                fprintf(stderr, "[Playback] pData is NULL!\n");
-                break;
-            }
+            if (FAILED(hr)) break;
+            if (!pData) break;
             
             // Calculate buffer sizes
             UINT32 dstBytesPerFrame = player->waveFormat.nBlockAlign;  // Output format (could be 32-bit float)
@@ -233,14 +219,11 @@ void PlaybackThread(AudioPlayer* player) {
             UINT32 framesToCopy = min(numFramesAvailable, remainingFrames);
             
             if (framesToCopy > 0) {
-                fprintf(stderr, "[Playback] Copying %u frames (pos=%u/%u)\n", framesToCopy, player->currentPosition, player->totalSamples);
-                
                 // Check if we need format conversion
                 bool needsConversion = (player->waveFormat.wBitsPerSample != player->sourceFormat.wBitsPerSample) ||
                                        (player->waveFormat.nSamplesPerSec != player->sourceFormat.nSamplesPerSec);
                 
                 if (needsConversion && player->sourceFormat.wBitsPerSample == 16 && player->waveFormat.wBitsPerSample == 32) {
-                    fprintf(stderr, "[Playback] Converting 16-bit to 32-bit float\n");
                     // Convert 16-bit PCM to 32-bit float
                     const short* srcData = reinterpret_cast<const short*>(
                         player->audioData.data() + (player->currentPosition * srcBytesPerFrame));
@@ -299,30 +282,24 @@ void PlaybackThread(AudioPlayer* player) {
     }
     
     // Stop audio client
-    fprintf(stderr, "[Playback] Stopping audio client...\n");
     if (player->audioClient) {
         player->audioClient->Stop();
     }
-    fprintf(stderr, "[Playback] Thread finished\n");
 }
 
 extern "C" {
 
 JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_createPlayer(JNIEnv* env, jclass clazz) {
-    fprintf(stderr, "[createPlayer] Creating player...\n");
     AudioPlayer* player = new AudioPlayer();
     
     // Initialize COM - S_FALSE is also OK (already initialized)
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    fprintf(stderr, "[createPlayer] CoInitializeEx returned: 0x%08X\n", hr);
     if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
-        fprintf(stderr, "[createPlayer] COM init failed!\n");
         delete player;
         return 0;
     }
     
     // Create device enumerator
-    fprintf(stderr, "[createPlayer] Creating device enumerator...\n");
     hr = CoCreateInstance(
         __uuidof(MMDeviceEnumerator),
         nullptr,
@@ -331,16 +308,12 @@ JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_createPlayer(JNIEnv* env,
         (void**)&player->deviceEnumerator
     );
     
-    fprintf(stderr, "[createPlayer] CoCreateInstance returned: 0x%08X, deviceEnumerator=%p\n", hr, player->deviceEnumerator);
-    
     if (FAILED(hr)) {
-        fprintf(stderr, "[createPlayer] Device enumerator creation failed!\n");
         CoUninitialize();
         delete player;
         return 0;
     }
     
-    fprintf(stderr, "[createPlayer] Player created successfully, handle=%p\n", player);
     return reinterpret_cast<jlong>(player);
 }
 
@@ -353,11 +326,9 @@ JNIEXPORT void JNICALL Java_fastaudio_FastAudioPlayer_destroyPlayer(JNIEnv* env,
 }
 
 JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, jclass clazz, jlong handle, jstring filePath) {
-    fprintf(stderr, "[loadFile] Called with handle=%p (value=%lld)\n", reinterpret_cast<void*>(handle), handle);
     if (!handle) return JNI_FALSE;
     
     AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
-    fprintf(stderr, "[loadFile] player=%p, deviceEnumerator=%p\n", player, player->deviceEnumerator);
     
     // Get file path
     std::wstring path = UTF8ToWString(env, filePath);
@@ -375,36 +346,20 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
     player->currentPosition = 0;
     
     // Get default audio device
-    fprintf(stderr, "[loadFile] deviceEnumerator=%p\n", player->deviceEnumerator);
-    if (!player->deviceEnumerator) {
-        fprintf(stderr, "[loadFile] ERROR: deviceEnumerator is NULL!\n");
-        return JNI_FALSE;
-    }
-    fprintf(stderr, "[loadFile] Getting default audio endpoint...\n");
+    if (!player->deviceEnumerator) return JNI_FALSE;
+
     HRESULT hr = player->deviceEnumerator->GetDefaultAudioEndpoint(
         eRender, eConsole, &player->audioDevice
     );
-    if (FAILED(hr)) {
-        fprintf(stderr, "[loadFile] GetDefaultAudioEndpoint failed: 0x%08X\n", hr);
-        return JNI_FALSE;
-    }
+    if (FAILED(hr)) return JNI_FALSE;
     
     // Activate audio client
-    fprintf(stderr, "[loadFile] Activating audio client...\n");
     hr = player->audioDevice->Activate(
         __uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&player->audioClient
     );
-    if (FAILED(hr)) {
-        fprintf(stderr, "[loadFile] Activate failed: 0x%08X\n", hr);
-        return JNI_FALSE;
-    }
+    if (FAILED(hr)) return JNI_FALSE;
     
     // Initialize audio client - use SHARED mode (compatible with other apps)
-    fprintf(stderr, "[loadFile] Initializing with WAV format (SHARED mode)...\n");
-    fprintf(stderr, "[loadFile] WAV Format: %dHz, %dch, %dbits, align=%d\n",
-            player->waveFormat.nSamplesPerSec, player->waveFormat.nChannels, 
-            player->waveFormat.wBitsPerSample, player->waveFormat.nBlockAlign);
-    
     REFERENCE_TIME bufferDuration = 10000000; // 1 second
     hr = player->audioClient->Initialize(
         AUDCLNT_SHAREMODE_SHARED,
@@ -415,10 +370,7 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
         nullptr
     );
     
-    fprintf(stderr, "[loadFile] Initialize returned: 0x%08X\n", hr);
-    
     if (FAILED(hr)) {
-        fprintf(stderr, "[loadFile] WAV format not supported, trying system mix format...\n");
         // Fallback: use system mix format
         player->audioClient->Release();
         player->audioClient = nullptr;
@@ -430,8 +382,6 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
             WAVEFORMATEX* mixFormat = nullptr;
             HRESULT hr2 = player->audioClient->GetMixFormat(&mixFormat);
             if (SUCCEEDED(hr2)) {
-                fprintf(stderr, "[loadFile] Mix format: %dHz, %dch, %dbits\n",
-                        mixFormat->nSamplesPerSec, mixFormat->nChannels, mixFormat->wBitsPerSample);
                 hr = player->audioClient->Initialize(
                     AUDCLNT_SHAREMODE_SHARED,
                     0,
@@ -446,8 +396,6 @@ JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, 
                 CoTaskMemFree(mixFormat);
             }
         }
-    } else {
-        fprintf(stderr, "[loadFile] SUCCESS - using original WAV format!\n");
     }
     
     if (FAILED(hr)) {

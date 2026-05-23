@@ -1,4 +1,4 @@
-# FastAudioPlayer — Native Windows WASAPI Audio Playback for Java [v0.1.0]
+﻿# FastAudioPlayer — Native Windows WASAPI Audio Playback for Java [v0.1.0]
 
 **High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 

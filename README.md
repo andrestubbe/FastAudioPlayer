@@ -2,12 +2,6 @@
 
 **High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
-[![Build](https://img.shields.io/github/actions/workflow/status/andrestubbe/FastAudioPlayer/maven.yml?branch=main)](https://github.com/andrestubbe/FastAudioPlayer/actions)
-[![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![JitPack](https://jitpack.io/v/andrestubbe/FastAudioPlayer.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
-
 FastAudioPlayer is the high-performance native audio output substrate of the FastJava ecosystem. It provides low-latency WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and high-performance game loops in Java without GC pressure.
 
 ```java
@@ -35,6 +29,12 @@ public class Demo {
     }
 }
 ```
+
+[![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/v0.1.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
+[![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe)
 
 ## Table of Contents
 - [Key Features](#key-features)

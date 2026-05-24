@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
 [![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe)
 
-**High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
+**⚡ High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
 FastAudioPlayer is the high-performance native audio output substrate of the FastJava ecosystem. It provides low-latency
 WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and
@@ -173,17 +173,19 @@ You can instantly compile and run these examples using the root automation scrip
 ## Documentation
 
 * **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
-* **[LICENSE](LICENSE)**: MIT Open Source terms.
+* **[REFERENCE.md](REFERENCE.md)**: Full API descriptions, border configurations, and codepoint index.
+* **[PHILOSOPHIE.md](PHILOSOPHIE.md)**: The engineering rationale for zero-allocation performance.
+* **[ROADMAP.md](ROADMAP.md)**: Future milestones and planned features.
 
 ---
 
 ## Platform Support
 
-| Platform            | Status                                 |
-|---------------------|----------------------------------------|
-| Windows 10/11 (x64) | ✅ Fully Supported (WASAPI JNI Backend) |
-| Linux               | 🚧 Planned (ALSA Backend)              |
-| macOS               | 🚧 Planned (CoreAudio Backend)         |
+| Platform      | Status            |
+|---------------|-------------------|
+| Windows 10/11 | ✅ Fully Supported |
+| Linux         | 🚧 Planned        |
+| macOS         | 🚧 Planned        |
 
 ---
 
@@ -193,16 +195,13 @@ MIT License — See [LICENSE](LICENSE) file for details.
 
 ---
 
-## Modular Ecosystem
+## Related Projects
 
-FastAudioPlayer works best when combined with other **FastJava** accelerators:
-
-* [**FastCore**](https://github.com/andrestubbe/FastCore) — Native library loader.
-* [**FastTTS**](https://github.com/andrestubbe/FastTTS) — Multi-Engine Neural Text-to-Speech (Piper, Kokoro, WASAPI).
-* [**FastSTT**](https://github.com/andrestubbe/FastSTT) — Low-latency Speech-to-Text.
+- [FastFileIndex](https://github.com/andrestubbe/FastFileIndex) - Binary file indexing with mmap support
+- [FastFileSearch](https://github.com/andrestubbe/FastFileSearch) - Prefix Trie, N-Gram index, and Ranking engine
+- [FastFileWatch](https://github.com/andrestubbe/FastFileWatch) - USN Journal-based live file monitoring
+- [FastCore](https://github.com/andrestubbe/FastCore) - Unified JNI loader and platform abstraction
 
 ---
 
-**Part of the FastJava Ecosystem** — *Making the JVM faster.*
-
-Made with ⚡ by Andre Stubbe
+**Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*

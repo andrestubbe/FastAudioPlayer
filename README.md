@@ -1,12 +1,12 @@
-# FastAudioPlayer v0.1.0 [ALPHA] � Native Windows WASAPI Audio Playback for Java
+# FastAudioPlayer 0.1.0 [ALPHA]  Native Windows WASAPI Audio Playback for Java
 
-[![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/v0.1.0)
+[![Status](https://img.shields.io/badge/status-0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
 [![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe)
 
-**? High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
+**âš¡ High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
 FastAudioPlayer is the high-performance native audio output substrate of the FastJava ecosystem. It provides low-latency
 WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and
@@ -16,7 +16,7 @@ high-performance game loops in Java without GC pressure.
 
 
 ```java
-// Quick Start � Low-Latency WASAPI Audio Playback
+// Quick Start  Low-Latency WASAPI Audio Playback
 
 import fastaudio.FastAudioPlayer;
 
@@ -57,15 +57,15 @@ public class Demo {
 
 ## Key Features
 
-- **?? Ultra-Low Latency** � Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
-- **? Zero GC Overhead** � Optimized playbacks using lightweight native state-handles (Zero-GC ring buffers).
-- **?? Zero External Dependencies** � Just requires Java 17+ and Windows. Bundles pre-compiled DLLs.
-- **??? Total Audio Control** � Real-time Volume, Pause, Resume, Stop, playback position queries, and output device
+- **?âš¡ Ultra-Low Latency**  Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
+- **? Zero GC Overhead**  Optimized playbacks using lightweight native state-handles (Zero-GC ring buffers).
+- **ðŸš€ Zero External Dependencies**  Just requires Java 17+ and Windows. Bundles pre-compiled DLLs.
+- **ðŸš€? Total Audio Control**  Real-time Volume, Pause, Resume, Stop, playback position queries, and output device
   selection.
 
 ---
 
-## ?? Performance
+## ðŸš€ Performance
 
 FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating directly with Windows Audio Session API:
 
@@ -94,7 +94,7 @@ FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating di
 
 ---
 
-## ?? Installation
+## ðŸš€ Installation
 
 FastJava modules are available via JitPack.
 
@@ -118,7 +118,7 @@ Add the JitPack repository and the dependencies to your `pom.xml`:
     <dependency>
         <groupId>com.github.andrestubbe</groupId>
         <artifactId>fastcore</artifactId>
-        <version>v0.1.0</version>
+        <version>0.1.0</version>
     </dependency>
 </dependencies>
 ```
@@ -133,7 +133,7 @@ repositories {
 }
 dependencies {
     implementation 'io.github.andrestubbe:fastaudioplayer:0.1.0'
-    implementation 'com.github.andrestubbe:fastcore:v0.1.0'
+    implementation 'com.github.andrestubbe:fastcore:0.1.0'
 }
 ```
 
@@ -142,10 +142,10 @@ dependencies {
 For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
 GitHub releases page:
 
-1. ?? *
-   *[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/v0.1.0/fastaudioplayer-0.1.0.jar)
+1. ðŸš€ *
+   *[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.0/fastaudioplayer-0.1.0.jar)
    **
-2. ?? **[fastcore-v0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/v0.1.0/fastcore-v0.1.0.jar)**
+2. ðŸš€ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)**
 
 ---
 
@@ -153,9 +153,9 @@ GitHub releases page:
 
 We provide high-quality, standalone examples inside the [examples/](examples/) directory:
 
-* [**Interactive Console Demo**](examples/Demo) � An interactive terminal audio player featuring active audio device
+* [**Interactive Console Demo**](examples/Demo)  An interactive terminal audio player featuring active audio device
   query, real-time volume controls, crisp 440Hz sine wave auto-generation, and a smooth real-time visual progress bar.
-* [**Precision Latency Benchmark**](examples/Benchmark) � Side-by-side precision latency benchmark comparing Windows
+* [**Precision Latency Benchmark**](examples/Benchmark)  Side-by-side precision latency benchmark comparing Windows
   WASAPI Native (`FastAudioPlayer`) against standard Java Sound (`javax.sound.sampled.SourceDataLine`) over multiple
   iterations.
 
@@ -178,25 +178,25 @@ You can instantly compile and run these examples using the root automation scrip
 | Platform      | Status            |
 |---------------|-------------------|
 | Windows 10/11 | ? Fully Supported |
-| Linux         | ?? Planned        |
-| macOS         | ?? Planned        |
+| Linux         | ðŸš€ Planned        |
+| macOS         | ðŸš€ Planned        |
 
 ---
 
 ## License
 
-MIT License � See [LICENSE](LICENSE) file for details.
+MIT License  See [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Related Projects
 
-- [FastCore](https://github.com/andrestubbe/FastCore) � Native Library Loader for Java
-- [FastAudioCapture](https://github.com/andrestubbe/FastAudioCapture) � High-Performance Native Audio Capture for Java
-- [FastTTS](https://github.com/andrestubbe/FastTTS) � High-Performance Native Windows TTS API for Java
-- [FastSTT](https://github.com/andrestubbe/FastSTT) � Ultra-Fast Native Speech-to-Text for Java
+- [FastCore](https://github.com/andrestubbe/FastCore)  Native Library Loader for Java
+- [FastAudioCapture](https://github.com/andrestubbe/FastAudioCapture)  High-Performance Native Audio Capture for Java
+- [FastTTS](https://github.com/andrestubbe/FastTTS)  High-Performance Native Windows TTS API for Java
+- [FastSTT](https://github.com/andrestubbe/FastSTT)  Ultra-Fast Native Speech-to-Text for Java
 - [FastWakeWord](https://github.com/andrestubbe/FastWakeWord)
 
 ---
 
-**Part of the FastJava Ecosystem** � *Making the JVM faster. Small package. Maximum speed. Zero bloat. ????*
+**Part of the FastJava Ecosystem**  *Making the JVM faster. Small package. Maximum speed. Zero bloat. ðŸš€ðŸš€*

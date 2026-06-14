@@ -4,9 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
+[![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe)
 
-**âš¡ High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
+**🔊 High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
 FastAudioPlayer is the high-performance native audio output substrate of the FastJava ecosystem. It provides low-latency
 WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and
@@ -57,15 +57,14 @@ public class Demo {
 
 ## Key Features
 
-- **?âš¡ Ultra-Low Latency**  Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
-- **? Zero GC Overhead**  Optimized playbacks using lightweight native state-handles (Zero-GC ring buffers).
-- **ðŸš€ Zero External Dependencies**  Just requires Java 17+ and Windows. Bundles pre-compiled DLLs.
-- **ðŸš€? Total Audio Control**  Real-time Volume, Pause, Resume, Stop, playback position queries, and output device
-  selection.
+- **⏱️ Ultra-Low Latency**: Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
+- **⚙️ Zero GC Overhead**: Optimized playbacks using lightweight native state-handles (Zero-GC ring buffers).
+- **📦 Zero External Dependencies**: Just requires Java 17+ and Windows. Bundles pre-compiled DLLs.
+- **🎛️ Total Audio Control**: Real-time Volume, Pause, Resume, Stop, playback position queries, and output device selection.
 
 ---
 
-## ðŸš€ Performance
+## ⚡ Performance
 
 FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating directly with Windows Audio Session API:
 
@@ -94,7 +93,7 @@ FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating di
 
 ---
 
-## ðŸš€ Installation
+## 📥 Installation
 
 FastJava modules are available via JitPack.
 
@@ -142,10 +141,8 @@ dependencies {
 For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
 GitHub releases page:
 
-1. ðŸš€ *
-   *[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.0/fastaudioplayer-0.1.0.jar)
-   **
-2. ðŸš€ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)**
+1. 📦 **[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.0/fastaudioplayer-0.1.0.jar)** (The Playback Library)
+2. ⚙️ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (The Mandatory Native Loader)
 
 ---
 
@@ -177,9 +174,9 @@ You can instantly compile and run these examples using the root automation scrip
 
 | Platform      | Status            |
 |---------------|-------------------|
-| Windows 10/11 | ? Fully Supported |
-| Linux         | ðŸš€ Planned        |
-| macOS         | ðŸš€ Planned        |
+| Windows 10/11 | ✅ Fully Supported |
+| Linux         | 🔗 Planned        |
+| macOS         | 🔗 Planned        |
 
 ---
 
@@ -199,4 +196,4 @@ MIT License  See [LICENSE](LICENSE) file for details.
 
 ---
 
-**Part of the FastJava Ecosystem**  *Making the JVM faster. Small package. Maximum speed. Zero bloat. ðŸš€ðŸš€*
+**Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*

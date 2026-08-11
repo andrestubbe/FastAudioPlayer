@@ -1,3 +1,0 @@
-TODO:
-- Implement native MP3 playback support in fastaudioplayer.cpp (currently only WAV files are parsed and supported).
-- Integrate Media Foundation or a decoder like minimp3 to decode MP3 files on the fly.

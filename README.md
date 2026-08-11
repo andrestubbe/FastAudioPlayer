@@ -1,10 +1,10 @@
-# FastAudioPlayer 0.1.0 [ALPHA-2026-05-17] — Native Windows WASAPI Audio Playback for Java
+# FastAudioPlayer 0.1.1 [ALPHA-2026-08-11] — Native Windows WASAPI Audio Playback for Java
 
-[![Status](https://img.shields.io/badge/status-0.1.0-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.0)
+[![Status](https://img.shields.io/badge/status-0.1.1-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.1)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![JitPack](https://img.shields.io/badge/JitPack-ready-green.svg)](https://jitpack.io/#andrestubbe)
+[![JitPack](https://img.shields.io/badge/JitPack-0.1.1-green.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
 
 **🔊 High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
@@ -112,12 +112,12 @@ Add the JitPack repository and the dependencies to your `pom.xml`:
     <dependency>
         <groupId>io.github.andrestubbe</groupId>
         <artifactId>fastaudioplayer</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </dependency>
     <dependency>
         <groupId>com.github.andrestubbe</groupId>
         <artifactId>fastcore</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </dependency>
 </dependencies>
 ```
@@ -131,8 +131,8 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    implementation 'io.github.andrestubbe:fastaudioplayer:0.1.0'
-    implementation 'com.github.andrestubbe:fastcore:0.1.0'
+    implementation 'com.github.andrestubbe:FastAudioPlayer:0.1.1'
+    implementation 'com.github.andrestubbe:fastcore:0.1.1'
 }
 ```
 
@@ -141,8 +141,8 @@ dependencies {
 For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
 GitHub releases page:
 
-1. 📦 **[fastaudioplayer-0.1.0.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.0/fastaudioplayer-0.1.0.jar)** (The Playback Library)
-2. ⚙️ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (The Mandatory Native Loader)
+1. 📦 **[fastaudioplayer-0.1.1.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.1/fastaudioplayer-0.1.1.jar)** (The Playback Library)
+2. ⚙️ **[fastcore-0.1.1.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.1/fastcore-0.1.1.jar)** (The Mandatory Native Loader)
 
 ---
 

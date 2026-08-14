@@ -105,13 +105,13 @@ FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating di
 
 ---
 
-## 📥 Installation
+---
 
-FastJava modules are available via JitPack.
+## Installation
 
-### Option 1: Maven (JitPack)
+### Option 1: Maven (Recommended)
 
-Add the JitPack repository and the dependencies to your `pom.xml`:
+Add the JitPack repository and the complete dependency stack to your `pom.xml`:
 
 ```xml
 <repositories>
@@ -120,41 +120,75 @@ Add the JitPack repository and the dependencies to your `pom.xml`:
         <url>https://jitpack.io</url>
     </repository>
 </repositories>
+
 <dependencies>
-    <dependency>
-        <groupId>io.github.andrestubbe</groupId>
-        <artifactId>fastaudioplayer</artifactId>
-        <version>0.1.1</version>
-    </dependency>
+    <!-- FastAudioPlayer Engine -->
     <dependency>
         <groupId>com.github.andrestubbe</groupId>
-        <artifactId>fastcore</artifactId>
+        <artifactId>FastAudioPlayer</artifactId>
+        <version>0.1.2</version>
+    </dependency>
+
+    <!-- FastSIMD Hardware Vector Acceleration Engine -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastSIMD</artifactId>
+        <version>0.1.3</version>
+    </dependency>
+
+    <!-- FastMemory Aligned Allocator -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastMemory</artifactId>
         <version>0.1.1</version>
+    </dependency>
+
+    <!-- FastPointer Address Wrapper -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastPointer</artifactId>
+        <version>0.1.1</version>
+    </dependency>
+
+    <!-- FastAudioProcess Audio Engine -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastAudioProcess</artifactId>
+        <version>0.1.1</version>
+    </dependency>
+
+    <!-- FastCore Unified JNI Loader -->
+    <dependency>
+        <groupId>com.github.andrestubbe</groupId>
+        <artifactId>FastCore</artifactId>
+        <version>0.1.0</version>
     </dependency>
 </dependencies>
 ```
 
-### Option 2: Gradle (JitPack)
+### Option 2: Gradle (via JitPack)
 
-Add this to your `build.gradle` file:
-
-```gradle
+```groovy
 repositories {
     maven { url 'https://jitpack.io' }
 }
+
 dependencies {
-    implementation 'com.github.andrestubbe:FastAudioPlayer:0.1.1'
-    implementation 'com.github.andrestubbe:fastcore:0.1.1'
+    implementation 'com.github.andrestubbe:FastAudioPlayer:0.1.2'
+    implementation 'com.github.andrestubbe:FastSIMD:0.1.3'
+    implementation 'com.github.andrestubbe:FastMemory:0.1.1'
+    implementation 'com.github.andrestubbe:FastPointer:0.1.1'
+    implementation 'com.github.andrestubbe:FastAudioProcess:0.1.1'
+    implementation 'com.github.andrestubbe:FastCore:0.1.0'
 }
 ```
 
-### Option 3: Direct Download
+### Option 3: Direct Download (No Build Tool)
 
-For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
-GitHub releases page:
+Download the latest JARs directly to add them to your classpath:
 
-1. 📦 **[fastaudioplayer-0.1.1.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.1/fastaudioplayer-0.1.1.jar)** (The Playback Library)
-2. ⚙️ **[fastcore-0.1.1.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.1/fastcore-0.1.1.jar)** (The Mandatory Native Loader)
+1. 📦 **[FastAudioPlayer-0.1.2.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.2/FastAudioPlayer-0.1.2.jar)** (Native WASAPI Player)
+2. ⚙️ **[fastcore-0.1.0.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.0/fastcore-0.1.0.jar)** (Required JNI Loader)
 
 ---
 

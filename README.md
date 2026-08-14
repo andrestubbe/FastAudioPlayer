@@ -209,13 +209,11 @@ You can instantly compile and run these examples using the root automation scrip
 
 ## Documentation
 
-- **[CHANGELOG.md](docs/CHANGELOG.md)**: Release notes and version history.
-
-* **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
-* **[REFERENCE.md](docs/REFERENCE.md)**: Full API descriptions, border configurations, and codepoint index.
-* **[PHILOSOPHY.md](docs/PHILOSOPHY.md)**: The engineering rationale for zero-allocation performance.
-* **[ROADMAP.md](docs/ROADMAP.md)**: Future milestones and planned features.
-
+* **[CHANGELOG.md](docs/CHANGELOG.md)**: Release notes and version history.
+* **[REFERENCE.md](docs/REFERENCE.md)**: Core API reference manual.
+* **[PHILOSOPHY.md](docs/PHILOSOPHY.md)**: Engineering rationale for zero-allocation performance.
+* **[COMPILE.md](docs/COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
+* **[ROADMAP.md](docs/ROADMAP.md)**: Future development goals.
 ---
 
 ## Platform Support

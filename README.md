@@ -1,10 +1,10 @@
 # FastAudioPlayer 0.1.2 [ALPHA-2026-08-11] â€” Native Windows WASAPI Audio Playback for Java
 
-[![Status](https://img.shields.io/badge/status-0.1.1-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.1)
+[![Status](https://img.shields.io/badge/status-0.1.2-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.java.com)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010+-lightgrey.svg)]()
-[![JitPack](https://img.shields.io/badge/JitPack-0.1.1-green.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
+[![JitPack](https://img.shields.io/badge/JitPack-0.1.2-green.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
 
 **ðŸ”Š High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
 
@@ -12,7 +12,7 @@ FastAudioPlayer is the high-performance native audio output substrate of the Fas
 WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and
 high-performance game loops in Java without GC pressure.
 
-[![Showcase](https://raw.githubusercontent.com/andrestubbe/FastAudioPlayer/main/docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
+[![FastFileIndex Showcase](docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
 
 
 ```java
@@ -131,8 +131,8 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    implementation 'com.github.andrestubbe:FastAudioPlayer:0.1.1'
-    implementation 'com.github.andrestubbe:fastcore:0.1.1'
+    implementation 'com.github.andrestubbe:FastAudioPlayer:0.1.2'
+    implementation 'com.github.andrestubbe:fastcore:0.1.2'
 }
 ```
 
@@ -141,8 +141,8 @@ dependencies {
 For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
 GitHub releases page:
 
-1. ðŸ“¦ **[fastaudioplayer-0.1.1.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.1/fastaudioplayer-0.1.1.jar)** (The Playback Library)
-2. âš™ï¸ **[fastcore-0.1.1.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.1/fastcore-0.1.1.jar)** (The Mandatory Native Loader)
+1. ðŸ“¦ **[fastaudioplayer-0.1.2.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.2/fastaudioplayer-0.1.2.jar)** (The Playback Library)
+2. âš™ï¸ **[fastcore-0.1.2.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.2/fastcore-0.1.2.jar)** (The Mandatory Native Loader)
 
 ---
 
@@ -162,8 +162,6 @@ You can instantly compile and run these examples using the root automation scrip
 ---
 
 ## Documentation
-
-- **[CHANGELOG.md](docs/CHANGELOG.md)**: Project history and release notes.
 
 * **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
 * **[REFERENCE.md](docs/REFERENCE.md)**: Full API descriptions, border configurations, and codepoint index.

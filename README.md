@@ -1,4 +1,4 @@
-# FastAudioPlayer 0.1.1 [ALPHA-2026-08-11] — Native Windows WASAPI Audio Playback for Java
+# FastAudioPlayer 0.1.2 [ALPHA-2026-08] — High-Performance Native Audio Playback for Java
 
 [![Status](https://img.shields.io/badge/status-0.1.2-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,28 +14,30 @@ high-performance game loops in Java without GC pressure.
 
 [![Showcase](https://raw.githubusercontent.com/andrestubbe/FastAudioPlayer/main/docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
 
-```java
-// Quick Start  Low-Latency WASAPI Audio Playback
+---
 
+## Quick Start — Example
+
+```java
 import fastaudio.FastAudioPlayer;
 
 public class Demo {
-    public static void main(String[] args) throws InterruptedException {
-        // Initialize the player (creates WASAPI context under the hood)
+    public static void main(String[] args) throws Exception {
+        // Initialize player (creates WASAPI context)
         FastAudioPlayer player = new FastAudioPlayer();
 
         // Load audio file (WAV or MP3)
         player.load("beep.wav");
         System.out.println("Duration: " + player.getDuration() + " ms");
 
-        // Asynchronous, low-latency playback
+        // Asynchronous low-latency playback
         player.play();
 
         while (player.isPlaying()) {
             Thread.sleep(100);
         }
 
-        // Clean up native COM resources
+        // Clean up native resources
         player.close();
     }
 }
@@ -43,6 +45,7 @@ public class Demo {
 
 ## Table of Contents
 
+- [Quick Start](#quick-start--example)
 - [Key Features](#key-features)
 - [Real-World Use Cases](#real-world-use-cases)
 - [Performance Benchmarks](#performance-benchmarks)

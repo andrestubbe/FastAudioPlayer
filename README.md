@@ -49,7 +49,6 @@ public class Demo {
 - [Key Features](#key-features)
 - [Real-World Use Cases](#real-world-use-cases)
 - [Performance Benchmarks](#performance-benchmarks)
-- [Performance](#performance)
 - [API Quick Reference](#api-quick-reference)
 - [Installation](#installation)
 - [Technical Examples](#technical-examples)
@@ -74,19 +73,6 @@ public class Demo {
 - 🎙️ **Voice AI Assistant Playback**: Stream synthetic speech directly from **[FastTTS](https://github.com/andrestubbe/FastTTS)** with zero buffer stutter.
 - 🎚️ **Hardware Gain & Equalization**: Apply AVX2 SIMD volume scaling and pitch adjustments on off-heap PCM buffers.
 - 🎵 **Multi-Track Audio Mixing**: Route multiple non-blocking native sound streams in real-time desktop applications.
-
----
-
-## Performance Benchmarks
-
-In the official [JMH Benchmark](examples/Benchmark), `FastAudioPlayer` measured native WASAPI playback and SIMD buffer routing throughput:
-
-```text
-Benchmark                            Mode  Cnt           Score   Error  Units
-JMH_FastAudioPlayer.benchmarkPlayer thrpt    2   1,180,759,582          ops/s
-```
-
-> **1.18 Billion Ops / sec**: `FastAudioPlayer` routes audio streams and applies native WASAPI gain controls at **1,180,759,582 operations per second** with **zero JVM Garbage Collection allocations**.
 
 ---
 

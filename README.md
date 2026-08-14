@@ -1,7 +1,5 @@
 # FastAudioPlayer 0.1.2 [ALPHA-2026-08-11] — Native Windows WASAPI Audio Playback for Java
 
-
-
 [![Status](https://img.shields.io/badge/status-0.1.2-brightgreen.svg)](https://github.com/andrestubbe/FastAudioPlayer/releases/tag/0.1.2)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -12,11 +10,7 @@
 
 [![JitPack](https://img.shields.io/badge/JitPack-0.1.2-green.svg)](https://jitpack.io/#andrestubbe/FastAudioPlayer)
 
-
-
 **🔊 High-performance native Windows WASAPI and XAudio2 audio playback API for Java.**
-
-
 
 FastAudioPlayer is the high-performance native audio output substrate of the FastJava ecosystem. It provides low-latency
 
@@ -24,23 +18,13 @@ WASAPI-based playback primitives required for real-time speech synthesis (FastTT
 
 high-performance game loops in Java without GC pressure.
 
-
-
 [![FastFileIndex Showcase](docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
-
-
-
-
 
 ```java
 
 // Quick Start  Low-Latency WASAPI Audio Playback
 
-
-
 import fastaudio.FastAudioPlayer;
-
-
 
 public class Demo {
 
@@ -50,29 +34,21 @@ public class Demo {
 
         FastAudioPlayer player = new FastAudioPlayer();
 
-
-
         // Load audio file (WAV or MP3)
 
         player.load("beep.wav");
 
         System.out.println("Duration: " + player.getDuration() + " ms");
 
-
-
         // Asynchronous, low-latency playback
 
         player.play();
-
-
 
         while (player.isPlaying()) {
 
             Thread.sleep(100);
 
         }
-
-
 
         // Clean up native COM resources
 
@@ -84,11 +60,7 @@ public class Demo {
 
 ```
 
-
-
 ## Table of Contents
-
-
 
 - [Key Features](#key-features)
 
@@ -106,15 +78,9 @@ public class Demo {
 
 - [License](#license)
 
-
-
 ---
 
-
-
 ## Key Features
-
-
 
 - **⏱️ Ultra-Low Latency**: Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
 
@@ -124,19 +90,11 @@ public class Demo {
 
 - **🎛️ Total Audio Control**: Real-time Volume, Pause, Resume, Stop, playback position queries, and output device selection.
 
-
-
 ---
-
-
 
 ## ⚡ Performance
 
-
-
 FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating directly with Windows Audio Session API:
-
-
 
 | Audio Engine                 | Time To First Sample (TTFS) | CPU overhead (Playback Loop) | GC Pressure               |
 
@@ -146,15 +104,9 @@ FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating di
 
 | **FastAudioPlayer (WASAPI)** | **1.2 ms - 3.5 ms**         | **<0.5%**                    | **None (Zero GC)**        |
 
-
-
 ---
 
-
-
 ## API Quick Reference
-
-
 
 | Method                 | Description                                                    | Target           |
 
@@ -176,33 +128,19 @@ FastAudioPlayer bypasses JavaSound's high-overhead mixer layer, communicating di
 
 | `close()`              | Safely frees all native structures and terminates COM threads. | JNI Cleanup      |
 
-
-
 > [!TIP]
 
 > Refer to the Javadoc in `FastAudioPlayer.java` for full threading contracts and fallback rules.
 
-
-
 ---
-
-
 
 ## 📥 Installation
 
-
-
 FastJava modules are available via JitPack.
-
-
 
 ### Option 1: Maven (JitPack)
 
-
-
 Add the JitPack repository and the dependencies to your `pom.xml`:
-
-
 
 ```xml
 
@@ -244,15 +182,9 @@ Add the JitPack repository and the dependencies to your `pom.xml`:
 
 ```
 
-
-
 ### Option 2: Gradle (JitPack)
 
-
-
 Add this to your `build.gradle` file:
-
-
 
 ```gradle
 
@@ -272,35 +204,21 @@ dependencies {
 
 ```
 
-
-
 ### Option 3: Direct Download
-
-
 
 For projects without build tools, download the pre-compiled native jar and its required JNI loader directly from the
 
 GitHub releases page:
 
-
-
 1. 📦 **[fastaudioplayer-0.1.2.jar](https://github.com/andrestubbe/FastAudioPlayer/releases/download/0.1.2/fastaudioplayer-0.1.2.jar)** (The Playback Library)
 
 2. ⚙️ **[fastcore-0.1.2.jar](https://github.com/andrestubbe/FastCore/releases/download/0.1.2/fastcore-0.1.2.jar)** (The Mandatory Native Loader)
 
-
-
 ---
-
-
 
 ## Technical Examples
 
-
-
 We provide high-quality, standalone examples inside the [examples/](examples/) directory:
-
-
 
 * [**Interactive Console Demo**](examples/Demo)  An interactive terminal audio player featuring active audio device
 
@@ -312,21 +230,13 @@ We provide high-quality, standalone examples inside the [examples/](examples/) d
 
   iterations.
 
-
-
 You can instantly compile and run these examples using the root automation scripts `run-demo.bat` and
 
 `run-benchmark.bat`.
 
-
-
 ---
 
-
-
 ## Documentation
-
-
 
 * **[COMPILE.md](COMPILE.md)**: Full compilation guide (MSVC C++17 build chain + JNI Setup).
 
@@ -336,15 +246,9 @@ You can instantly compile and run these examples using the root automation scrip
 
 * **[ROADMAP.md](docs/ROADMAP.md)**: Future milestones and planned features.
 
-
-
 ---
 
-
-
 ## Platform Support
-
-
 
 | Platform      | Status            |
 
@@ -356,27 +260,15 @@ You can instantly compile and run these examples using the root automation scrip
 
 | macOS         | 🔗 Planned        |
 
-
-
 ---
-
-
 
 ## License
 
-
-
 MIT License  See [LICENSE](LICENSE) file for details.
-
-
 
 ---
 
-
-
 ## Related Projects
-
-
 
 - [FastCore](https://github.com/andrestubbe/FastCore)  Native Library Loader for Java
 
@@ -388,11 +280,7 @@ MIT License  See [LICENSE](LICENSE) file for details.
 
 - [FastWakeWord](https://github.com/andrestubbe/FastWakeWord)
 
-
-
 ---
-
-
 
 **Part of the FastJava Ecosystem** — *Making the JVM faster. Small package. Maximum speed. Zero bloat. 🚀📋*
 

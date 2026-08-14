@@ -12,7 +12,7 @@ FastAudioPlayer is the high-performance native audio output substrate of the Fas
 WASAPI-based playback primitives required for real-time speech synthesis (FastTTS), low-overhead audio streaming, and
 high-performance game loops in Java without GC pressure.
 
-[![Showcase](https://raw.githubusercontent.com/andrestubbe/FastAudioPlayer/main/docs/screenshot.png)](https://www.youtube.com/watch?v=BZsqQl7WqWk)
+![Showcase](https://raw.githubusercontent.com/andrestubbe/FastAudioPlayer/main/docs/screenshot.png)
 
 ---
 

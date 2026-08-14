@@ -1,3 +1,3 @@
 # FastAudioPlayer Compilation Guide
 
-Run `compile.bat` with MSVC 2022/2026 and JDK 17+.
+Run `compile.bat` with MSVC and JDK 17+ to build `fastaudioplayer.dll`.

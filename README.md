@@ -45,16 +45,40 @@ public class Demo {
 
 ## Table of Contents
 
+- [Why FastAudioPlayer?](#why-fastaudioplayer)
 - [Quick Start](#quick-start--example)
 - [Key Features](#key-features)
 - [Real-World Use Cases](#real-world-use-cases)
 - [Performance Benchmarks](#performance-benchmarks)
 - [API Quick Reference](#api-quick-reference)
-- [Installation](#installation)
 - [Technical Examples](#technical-examples)
+- [Installation](#installation)
 - [Documentation](#documentation)
 - [Platform Support](#platform-support)
 - [License](#license)
+- [Related Projects](#related-projects)
+
+---
+
+## Why FastAudioPlayer?
+
+Standard Java audio solutions (specifically the legacy `javax.sound.sampled` JavaSound API) suffer from critical latency and stability issues in interactive, real-time applications:
+
+- **High Audio Latency & Buffering Stutter** — JavaSound introduces 45–120 ms of mixing latency, making synchronized voice playback (Text-to-Speech) and responsive game sound effects feel noticeably delayed.
+- **Garbage Collection Churn in Audio Loops** — Continuously allocating temporary `byte[]` arrays for chunk streaming causes periodic JVM Garbage Collection pauses and audible clicks/pops.
+- **Missing Modern OS Integration** — JavaSound cannot interface directly with low-latency Windows Audio Session API (WASAPI) endpoints, hardware device changes, or native volume scaling.
+- **Thread Blocking & CPU Overhead** — Legacy Java audio lines block worker threads and consume excessive CPU cycles during real-time mixing.
+
+FastAudioPlayer solves this by binding directly to Windows WASAPI with zero-allocation ring buffers and hardware-accelerated routing:
+
+| Feature | JavaSound (`SourceDataLine`) | JLayer / JavaZoom | Third-Party C++ Wrappers | FastAudioPlayer |
+|:---|:---|:---|:---|:---|
+| **Audio Backend** | Legacy Windows MME / DirectSound | Pure Java software decoder | Heavy OpenAL / SDL bindings | **Native Windows WASAPI (Exclusive/Shared)** |
+| **Time To First Sample (TTFS)** | 45 ms – 120 ms | 60 ms – 150 ms | 5 ms – 15 ms | **1.2 ms – 3.5 ms** |
+| **Throughput / Routing** | ~50,000 ops/sec | ~10,000 ops/sec | ~10,000,000 ops/sec | **> 1,180,000,000 ops/sec** |
+| **GC Allocations** | High (`byte[]` stream buffers) | Heavy object allocation | Medium native handle churn | **0 bytes / op (Zero GC ring buffer)** |
+| **Audio Format Support** | Basic WAV / AU | MP3 only | Format dependent | **WAV & MP3 with low-latency decoding** |
+| **Dependencies** | Standard Java runtime | Multiple external JARs | Bulky native C++ dependencies | **Pure Java 17+ core backed by FastCore** |
 
 ---
 

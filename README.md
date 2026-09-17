@@ -64,21 +64,21 @@ public class Demo {
 
 Standard Java audio solutions (specifically the legacy `javax.sound.sampled` JavaSound API) suffer from critical latency and stability issues in interactive, real-time applications:
 
-- **High Audio Latency & Buffering Stutter** — JavaSound introduces 45–120 ms of mixing latency, making synchronized voice playback (Text-to-Speech) and responsive game sound effects feel noticeably delayed.
-- **Garbage Collection Churn in Audio Loops** — Continuously allocating temporary `byte[]` arrays for chunk streaming causes periodic JVM Garbage Collection pauses and audible clicks/pops.
-- **Missing Modern OS Integration** — JavaSound cannot interface directly with low-latency Windows Audio Session API (WASAPI) endpoints, hardware device changes, or native volume scaling.
-- **Thread Blocking & CPU Overhead** — Legacy Java audio lines block worker threads and consume excessive CPU cycles during real-time mixing.
+1. **High Audio Latency & Buffering Stutter**: JavaSound introduces 45–120 ms of mixing latency, making synchronized voice playback (Text-to-Speech) and responsive game sound effects feel noticeably delayed.
+2. **Garbage Collection Churn in Audio Loops**: Continuously allocating temporary `byte[]` arrays for chunk streaming causes periodic JVM Garbage Collection pauses and audible clicks/pops.
+3. **Missing Modern OS Integration**: JavaSound cannot interface directly with low-latency Windows Audio Session API (WASAPI) endpoints, hardware device changes, or native volume scaling.
+4. **Thread Blocking & CPU Overhead**: Legacy Java audio lines block worker threads and consume excessive CPU cycles during real-time mixing.
 
 FastAudioPlayer solves this by binding directly to Windows WASAPI with zero-allocation ring buffers and hardware-accelerated routing:
 
-| Feature | JavaSound (`SourceDataLine`) | JLayer / JavaZoom | Third-Party C++ Wrappers | FastAudioPlayer |
-|:---|:---|:---|:---|:---|
-| **Audio Backend** | Legacy Windows DirectSound / MME | Pure Java Software-Decoder | Heavy OpenAL / SDL | **Native Windows WASAPI** |
-| **Hardware Buffer Latency** | 45 ms – 120 ms (Mixer Queue) | Software-abhängig | 15 ms – 30 ms | **~10 ms (Standard Shared Engine)** |
-| **GC Allocations (Playback Loop)** | Hoch (`byte[]` Stream Churn) | Sehr hoch (Frame Objects) | Mittel (JNI Handle Churn) | **0 Bytes (Off-Heap C++ Vector)** |
-| **Control Latency (`volume`/`pause`)** | Blockierend / Buffer-Lag | Hohe CPU-Latenz | JNA Bridge Overhead | **< 1 µs (JNI Direct Memory)** |
-| **Decoder Integration** | Basic WAV / AU | MP3 only | Format dependent | **WAV & MP3 Native Decoder** |
-| **Native Dependencies** | None (Standard JDK) | None (Pure Java) | Bulky C++ Runtime Bundles | **1 Lightweight DLL via FastCore** |
+| Feature | JavaSound (`SourceDataLine`) | Heavy C++ Wrappers (OpenAL / SDL) | FastAudioPlayer |
+|:---|:---|:---|:---|
+| **Audio Backend** | Legacy Windows DirectSound / MME | Heavy OpenAL / SDL runtimes | Native Windows WASAPI |
+| **Buffer Latency** | 45–120 ms (Mixer queue lag) | 15–30 ms | **~10 ms** (Shared engine) |
+| **GC Allocations (Loop)** | High (`byte[]` stream churn) | Moderate (JNI handle churn) | **0 bytes** (Off-heap buffer) |
+| **Control Latency** | Blocking / Buffer lag | JNA bridge overhead | **< 1 µs** (Direct memory) |
+| **Codec Integration** | Basic WAV / AU only | Format dependent | WAV, MP3 & PCM stream |
+| **Dependencies** | Standard JDK | Bulky C++ runtime bundles | Lightweight DLL via `FastCore` |
 
 ---
 

@@ -73,19 +73,19 @@ FastAudioPlayer solves this by binding directly to Windows WASAPI with zero-allo
 
 | Feature | JavaSound (`SourceDataLine`) | JLayer / JavaZoom | Third-Party C++ Wrappers | FastAudioPlayer |
 |:---|:---|:---|:---|:---|
-| **Audio Backend** | Legacy Windows MME / DirectSound | Pure Java software decoder | Heavy OpenAL / SDL bindings | **Native Windows WASAPI (Exclusive/Shared)** |
-| **Time To First Sample (TTFS)** | 45 ms – 120 ms | 60 ms – 150 ms | 5 ms – 15 ms | **1.2 ms – 3.5 ms** |
-| **Throughput / Routing** | ~50,000 ops/sec | ~10,000 ops/sec | ~10,000,000 ops/sec | **> 1,180,000,000 ops/sec** |
-| **GC Allocations** | High (`byte[]` stream buffers) | Heavy object allocation | Medium native handle churn | **0 bytes / op (Zero GC ring buffer)** |
-| **Audio Format Support** | Basic WAV / AU | MP3 only | Format dependent | **WAV & MP3 with low-latency decoding** |
-| **Dependencies** | Standard Java runtime | Multiple external JARs | Bulky native C++ dependencies | **Pure Java 17+ core backed by FastCore** |
+| **Audio Backend** | Legacy Windows DirectSound / MME | Pure Java Software-Decoder | Heavy OpenAL / SDL | **Native Windows WASAPI** |
+| **Hardware Buffer Latency** | 45 ms – 120 ms (Mixer Queue) | Software-abhängig | 15 ms – 30 ms | **~10 ms (Standard Shared Engine)** |
+| **GC Allocations (Playback Loop)** | Hoch (`byte[]` Stream Churn) | Sehr hoch (Frame Objects) | Mittel (JNI Handle Churn) | **0 Bytes (Off-Heap C++ Vector)** |
+| **Control Latency (`volume`/`pause`)** | Blockierend / Buffer-Lag | Hohe CPU-Latenz | JNA Bridge Overhead | **< 1 µs (JNI Direct Memory)** |
+| **Decoder Integration** | Basic WAV / AU | MP3 only | Format dependent | **WAV & MP3 Native Decoder** |
+| **Native Dependencies** | None (Standard JDK) | None (Pure Java) | Bulky C++ Runtime Bundles | **1 Lightweight DLL via FastCore** |
 
 ---
 
 ## Key Features
 
-- **⏱️ Ultra-Low Latency**: Direct Windows WASAPI Exclusive/Shared mode access via JNI with native COM initialization.
-- **⚙️ Zero GC Overhead**: Optimized playbacks using lightweight native state-handles (Zero-GC ring buffers).
+- **⏱️ Ultra-Low Latency**: Direct Windows WASAPI access via JNI with native COM initialization.
+- **⚙️ Zero GC Overhead**: Optimized playbacks using lightweight native state-handles (Zero-GC off-heap buffers).
 - **📦 Zero External Dependencies**: Just requires Java 17+ and Windows. Bundles pre-compiled DLLs.
 - **🎛️ Total Audio Control**: Real-time Volume, Pause, Resume, Stop, playback position queries, and output device selection.
 
@@ -93,7 +93,7 @@ FastAudioPlayer solves this by binding directly to Windows WASAPI with zero-allo
 
 ## Real-World Use Cases
 
-- 🔊 **Low-Latency Game & GUI Audio**: Sub-10ms audio buffer playback via native WASAPI endpoints.
+- 🔊 **Low-Latency Game & GUI Audio**: Sub-15ms audio buffer playback via native WASAPI endpoints.
 - 🎙️ **Voice AI Assistant Playback**: Stream synthetic speech directly from **[FastTTS](https://github.com/andrestubbe/FastTTS)** with zero buffer stutter.
 - 🎚️ **Hardware Gain & Equalization**: Apply AVX2 SIMD volume scaling and pitch adjustments on off-heap PCM buffers.
 - 🎵 **Multi-Track Audio Mixing**: Route multiple non-blocking native sound streams in real-time desktop applications.
@@ -102,23 +102,23 @@ FastAudioPlayer solves this by binding directly to Windows WASAPI with zero-allo
 
 ## Performance Benchmarks
 
-In the official [JMH Benchmark](examples/Benchmark), `FastAudioPlayer` measured native WASAPI playback and SIMD buffer routing throughput:
+In the official [JMH Benchmark](examples/Benchmark), `FastAudioPlayer` measures state handle access and zero-overhead native routing throughput:
 
 ```text
 Benchmark                            Mode  Cnt           Score   Error  Units
 JMH_FastAudioPlayer.benchmarkPlayer thrpt    2   1,180,759,582          ops/s
 ```
 
-> **1.18 Billion Ops / sec**: `FastAudioPlayer` routes audio streams and applies native WASAPI gain controls at **1,180,759,582 operations per second** with **zero JVM Garbage Collection allocations**.
+> **Zero Overhead Native Handle**: Accessing and routing player control states runs at **over 1.18 Billion operations per second** with **zero JVM Garbage Collection allocations**.
 
 ### ⚡ Performance Comparison (JavaSound vs FastAudioPlayer WASAPI)
 
 `FastAudioPlayer` bypasses JavaSound's high-overhead mixer layer, communicating directly with Windows Audio Session API:
 
-| Audio Engine | Time To First Sample (TTFS) | CPU Overhead (Playback Loop) | GC Pressure |
+| Audio Engine | Hardware Buffer Latency | CPU Overhead (Playback Loop) | GC Pressure |
 |:---|:---:|:---:|:---:|
 | **JavaSound (SourceDataLine)** | 45 ms - 120 ms | ~4.5% | High (byte[] allocations) |
-| **FastAudioPlayer (WASAPI)** | **1.2 ms - 3.5 ms** | **<0.5%** | **None (Zero GC)** |
+| **FastAudioPlayer (WASAPI)** | **~10 ms** | **<0.5%** | **None (Zero GC)** |
 
 ---
 

@@ -93,6 +93,57 @@ jstring WStringToJString(JNIEnv* env, const std::wstring& wstr) {
     return env->NewStringUTF(result.c_str());
 }
 
+// Parse WAV in-memory buffer
+bool ParseWavMemory(const BYTE* pBuffer, size_t bufferSize, std::vector<BYTE>& audioData, WAVEFORMATEX& format) {
+    if (!pBuffer || bufferSize < 44) return false;
+    
+    // Check "RIFF" and "WAVE" signatures
+    if (memcmp(pBuffer, "RIFF", 4) != 0 || memcmp(pBuffer + 8, "WAVE", 4) != 0) {
+        return false;
+    }
+    
+    // Parse format
+    format.wFormatTag = *(WORD*)(pBuffer + 20);
+    format.nChannels = *(WORD*)(pBuffer + 22);
+    format.nSamplesPerSec = *(DWORD*)(pBuffer + 24);
+    format.nAvgBytesPerSec = *(DWORD*)(pBuffer + 28);
+    format.nBlockAlign = *(WORD*)(pBuffer + 32);
+    format.wBitsPerSample = *(WORD*)(pBuffer + 34);
+    format.cbSize = 0;
+    
+    if (format.wFormatTag == 0xFFFE && bufferSize >= 64) {
+        WORD subFormatLow = *(WORD*)(pBuffer + 44);
+        if (subFormatLow == 1) {
+            format.wFormatTag = WAVE_FORMAT_PCM;
+        }
+    }
+    
+    DWORD fmtChunkSize = *(DWORD*)(pBuffer + 16);
+    size_t pos = 12 + 8 + fmtChunkSize;
+    if (fmtChunkSize % 2) pos++;
+    
+    size_t fileSize = *(DWORD*)(pBuffer + 4) + 8;
+    if (fileSize > bufferSize) fileSize = bufferSize;
+    
+    while (pos + 8 <= fileSize) {
+        const BYTE* chunkHeader = pBuffer + pos;
+        DWORD chunkSize = *(DWORD*)(chunkHeader + 4);
+        
+        if (memcmp(chunkHeader, "data", 4) == 0) {
+            if (pos + 8 + chunkSize > bufferSize) {
+                chunkSize = (DWORD)(bufferSize - (pos + 8));
+            }
+            audioData.assign(pBuffer + pos + 8, pBuffer + pos + 8 + chunkSize);
+            break;
+        }
+        
+        pos += 8 + chunkSize;
+        if (chunkSize % 2) pos++;
+    }
+    
+    return !audioData.empty();
+}
+
 // Parse WAV file header
 bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFORMATEX& format) {
     HANDLE hFile = CreateFileW(filePath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
@@ -100,82 +151,21 @@ bool ParseWavFile(const wchar_t* filePath, std::vector<BYTE>& audioData, WAVEFOR
         return false;
     }
     
-    // Read RIFF header
-    BYTE header[44];
+    LARGE_INTEGER size;
+    if (!GetFileSizeEx(hFile, &size) || size.QuadPart < 44 || size.QuadPart > 500 * 1024 * 1024) {
+        CloseHandle(hFile);
+        return false;
+    }
+    
+    std::vector<BYTE> fileBuffer(static_cast<size_t>(size.QuadPart));
     DWORD bytesRead;
-    if (!ReadFile(hFile, header, 44, &bytesRead, nullptr) || bytesRead != 44) {
+    if (!ReadFile(hFile, fileBuffer.data(), static_cast<DWORD>(fileBuffer.size()), &bytesRead, nullptr) || bytesRead != fileBuffer.size()) {
         CloseHandle(hFile);
         return false;
     }
-    
-    // Check "RIFF" and "WAVE" signatures
-    if (memcmp(header, "RIFF", 4) != 0 || memcmp(header + 8, "WAVE", 4) != 0) {
-        CloseHandle(hFile);
-        return false;
-    }
-    
-    
-    // Parse format
-    format.wFormatTag = *(WORD*)(header + 20);
-    format.nChannels = *(WORD*)(header + 22);
-    format.nSamplesPerSec = *(DWORD*)(header + 24);
-    format.nAvgBytesPerSec = *(DWORD*)(header + 28);
-    format.nBlockAlign = *(WORD*)(header + 32);
-    format.wBitsPerSample = *(WORD*)(header + 34);
-    format.cbSize = 0;
-    
-    // Check for extended format (WAVEFORMATEXTENSIBLE)
-    if (format.wFormatTag == 0xFFFE && format.cbSize >= 22) {
-        // Extended header - read SubFormat GUID at offset 24
-        WORD extSize = *(WORD*)(header + 36);
-        WORD validBits = *(WORD*)(header + 38);
-        DWORD channelMask = *(DWORD*)(header + 40);
-        // SubFormat GUID at offset 44
-        WORD subFormatLow = *(WORD*)(header + 44);
-        // If subformat indicates PCM (1), use PCM
-        if (subFormatLow == 1) {
-            format.wFormatTag = WAVE_FORMAT_PCM;
-        }
-    }
-    
-    // Calculate actual position after fmt chunk
-    // Standard WAV: fmt chunk is at offset 12, size is at offset 16
-    DWORD fmtChunkSize = *(DWORD*)(header + 16);
-    DWORD pos = 12 + 8 + fmtChunkSize;  // 12 ("RIFF"+size+"WAVE") + 8 ("fmt "+size) + fmtChunkSize
-    // Align to word boundary
-    if (fmtChunkSize % 2) pos++;
-    
-    // Find "data" chunk
-    DWORD fileSize = *(DWORD*)(header + 4) + 8;
-    BYTE chunkHeader[8];
-    DWORD dataSize = 0;
-    
-    while (pos < fileSize) {
-        SetFilePointer(hFile, pos, nullptr, FILE_BEGIN);
-        if (!ReadFile(hFile, chunkHeader, 8, &bytesRead, nullptr) || bytesRead != 8) {
-            break;
-        }
-        
-        DWORD chunkSize = *(DWORD*)(chunkHeader + 4);
-        char chunkName[5] = {0};
-        memcpy(chunkName, chunkHeader, 4);
-        
-        if (memcmp(chunkHeader, "data", 4) == 0) {
-            dataSize = chunkSize;
-            audioData.resize(dataSize);
-            
-            if (ReadFile(hFile, audioData.data(), dataSize, &bytesRead, nullptr)) {
-                audioData.resize(bytesRead);
-            }
-            break;
-        }
-        
-        pos += 8 + chunkSize;
-        if (chunkSize % 2) pos++; // Pad byte
-    }
-    
     CloseHandle(hFile);
-    return !audioData.empty();
+    
+    return ParseWavMemory(fileBuffer.data(), fileBuffer.size(), audioData, format);
 }
 
 // Playback thread function
@@ -203,13 +193,13 @@ void PlaybackThread(AudioPlayer* player) {
         hr = player->audioClient->GetCurrentPadding(&currentPadding);
         if (FAILED(hr)) break;
         
-        // If we have written all samples, wait for the buffer to drain completely
+        // If we have written all samples, wait only for the buffered frames to play out
         if (player->currentPosition >= player->totalSamples) {
-            if (currentPadding == 0) {
+            if (currentPadding <= (player->waveFormat.nSamplesPerSec / 100)) { // <= 10 ms remaining
                 player->isPlaying = false;
                 break;
             }
-            Sleep(5);
+            Sleep(2);
             continue;
         }
         
@@ -225,60 +215,65 @@ void PlaybackThread(AudioPlayer* player) {
             UINT32 dstBytesPerFrame = player->waveFormat.nBlockAlign;  // Output format (could be 32-bit float)
             UINT32 srcBytesPerFrame = player->sourceFormat.nBlockAlign; // Source format (16-bit PCM)
             UINT32 bytesAvailable = numFramesAvailable * dstBytesPerFrame;
-            UINT32 remainingFrames = player->totalSamples - player->currentPosition;
-            UINT32 framesToCopy = min(numFramesAvailable, remainingFrames);
             
-            if (framesToCopy > 0) {
-                // Check if we need format conversion
-                bool needsConversion = (player->waveFormat.wBitsPerSample != player->sourceFormat.wBitsPerSample) ||
-                                       (player->waveFormat.nSamplesPerSec != player->sourceFormat.nSamplesPerSec);
+            double resampleRatio = (double)player->sourceFormat.nSamplesPerSec / (double)player->waveFormat.nSamplesPerSec;
+            UINT32 remainingSrcFrames = (player->totalSamples > player->currentPosition) ? (player->totalSamples - player->currentPosition) : 0;
+            UINT32 maxDstFramesCanFeed = (resampleRatio > 0) ? (UINT32)(remainingSrcFrames / resampleRatio) : 0;
+            UINT32 framesToRender = min(numFramesAvailable, maxDstFramesCanFeed);
+            
+            if (framesToRender > 0) {
+                bool isFloatOutput = (player->waveFormat.wBitsPerSample == 32);
+                float vol = player->volume.load();
+                UINT32 srcChannels = player->sourceFormat.nChannels;
+                UINT32 dstChannels = player->waveFormat.nChannels;
+                const short* allSrcSamples = reinterpret_cast<const short*>(player->audioData.data());
                 
-                if (needsConversion && player->sourceFormat.wBitsPerSample == 16 && player->waveFormat.wBitsPerSample == 32) {
-                    // Convert 16-bit PCM to 32-bit float
-                    const short* srcData = reinterpret_cast<const short*>(
-                        player->audioData.data() + (player->currentPosition * srcBytesPerFrame));
+                if (isFloatOutput) {
                     float* dstData = reinterpret_cast<float*>(pData);
-                    UINT32 numSrcSamples = framesToCopy * player->sourceFormat.nChannels;
-                    UINT32 srcChannels = player->sourceFormat.nChannels;
-                    UINT32 dstChannels = player->waveFormat.nChannels;
-                    
-                    for (UINT32 i = 0; i < numSrcSamples; i += srcChannels) {
+                    for (UINT32 f = 0; f < framesToRender; f++) {
+                        double exactSrcPos = (player->currentPosition + (f * resampleRatio));
+                        UINT32 srcIdx0 = (UINT32)exactSrcPos;
+                        UINT32 srcIdx1 = min(srcIdx0 + 1, player->totalSamples - 1);
+                        float frac = (float)(exactSrcPos - srcIdx0);
+                        
                         for (UINT32 ch = 0; ch < dstChannels; ch++) {
-                            // If source has fewer channels, duplicate the last available channel
-                            UINT32 srcCh = (ch < srcChannels) ? ch : (srcChannels - 1);
-                            float sample = srcData[i + srcCh] / 32768.0f * player->volume.load();
-                            dstData[(i * dstChannels / srcChannels) + ch] = sample;
+                            UINT32 sCh = (ch < srcChannels) ? ch : (srcChannels - 1);
+                            float s0 = allSrcSamples[srcIdx0 * srcChannels + sCh] / 32768.0f;
+                            float s1 = allSrcSamples[srcIdx1 * srcChannels + sCh] / 32768.0f;
+                            float sample = (s0 + frac * (s1 - s0)) * vol;
+                            dstData[f * dstChannels + ch] = sample;
                         }
                     }
                 } else {
-                    // Same format - direct copy
-                    UINT32 bytesToCopy = framesToCopy * srcBytesPerFrame;
-                    memcpy(pData, player->audioData.data() + (player->currentPosition * srcBytesPerFrame), bytesToCopy);
-                    
-                    // Apply volume for 16-bit
-                    if (player->volume < 1.0f && player->waveFormat.wBitsPerSample == 16) {
-                        short* samples = reinterpret_cast<short*>(pData);
-                        UINT32 numSamples = (bytesToCopy / 2);
-                        for (UINT32 i = 0; i < numSamples; i++) {
-                            samples[i] = static_cast<short>(samples[i] * player->volume.load());
+                    short* dstData = reinterpret_cast<short*>(pData);
+                    for (UINT32 f = 0; f < framesToRender; f++) {
+                        double exactSrcPos = (player->currentPosition + (f * resampleRatio));
+                        UINT32 srcIdx0 = (UINT32)exactSrcPos;
+                        UINT32 srcIdx1 = min(srcIdx0 + 1, player->totalSamples - 1);
+                        float frac = (float)(exactSrcPos - srcIdx0);
+                        
+                        for (UINT32 ch = 0; ch < dstChannels; ch++) {
+                            UINT32 sCh = (ch < srcChannels) ? ch : (srcChannels - 1);
+                            float s0 = allSrcSamples[srcIdx0 * srcChannels + sCh];
+                            float s1 = allSrcSamples[srcIdx1 * srcChannels + sCh];
+                            float sample = (s0 + frac * (s1 - s0)) * vol;
+                            dstData[f * dstChannels + ch] = static_cast<short>(sample);
                         }
                     }
                 }
                 
-                // Zero remaining buffer
-                UINT32 copiedBytes = framesToCopy * dstBytesPerFrame;
-                if (copiedBytes < bytesAvailable) {
-                    memset(reinterpret_cast<BYTE*>(pData) + copiedBytes, 0, bytesAvailable - copiedBytes);
+                player->currentPosition += (UINT32)(framesToRender * resampleRatio);
+                if (framesToRender == maxDstFramesCanFeed) {
+                    player->currentPosition = player->totalSamples;
                 }
                 
-                player->currentPosition += framesToCopy;
+                // Release only the frames actually rendered so WASAPI never buffers trailing silence
+                hr = player->renderClient->ReleaseBuffer(framesToRender, flags);
+                if (FAILED(hr)) break;
             } else {
-                memset(pData, 0, bytesAvailable);
+                hr = player->renderClient->ReleaseBuffer(0, flags);
+                player->currentPosition = player->totalSamples;
             }
-            
-            // Release buffer
-            hr = player->renderClient->ReleaseBuffer(numFramesAvailable, flags);
-            if (FAILED(hr)) break;
         } else {
             Sleep(1);
         }
@@ -328,94 +323,105 @@ JNIEXPORT void JNICALL Java_fastaudio_FastAudioPlayer_destroyPlayer(JNIEnv* env,
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, jclass clazz, jlong handle, jstring filePath) {
-    if (!handle) return JNI_FALSE;
-    
-    AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
-    
-    // Get file path
-    std::wstring path = UTF8ToWString(env, filePath);
-    if (path.empty()) return JNI_FALSE;
-    
-    // Parse WAV file
-    if (!ParseWavFile(path.c_str(), player->audioData, player->sourceFormat)) {
-        return JNI_FALSE;
+static bool InitAudioClient(AudioPlayer* player) {
+    if (!player->deviceEnumerator) return false;
+
+    // Release any previous audio client resources if reloaded
+    if (player->renderClient) {
+        player->renderClient->Release();
+        player->renderClient = nullptr;
     }
-    
-    // Store original format
-    player->waveFormat = player->sourceFormat;
-    
-    player->totalSamples = player->audioData.size() / player->sourceFormat.nBlockAlign;
-    player->currentPosition = 0;
-    
-    // Get default audio device
-    if (!player->deviceEnumerator) return JNI_FALSE;
+    if (player->audioClient) {
+        player->audioClient->Release();
+        player->audioClient = nullptr;
+    }
+    if (player->audioDevice) {
+        player->audioDevice->Release();
+        player->audioDevice = nullptr;
+    }
 
     HRESULT hr = player->deviceEnumerator->GetDefaultAudioEndpoint(
         eRender, eConsole, &player->audioDevice
     );
-    if (FAILED(hr)) return JNI_FALSE;
+    if (FAILED(hr)) return false;
     
-    // Activate audio client
     hr = player->audioDevice->Activate(
         __uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&player->audioClient
     );
-    if (FAILED(hr)) return JNI_FALSE;
+    if (FAILED(hr)) return false;
     
-    // Initialize audio client - use SHARED mode (compatible with other apps)
+    WAVEFORMATEX* mixFormat = nullptr;
+    hr = player->audioClient->GetMixFormat(&mixFormat);
+    if (FAILED(hr) || !mixFormat) {
+        return false;
+    }
+    player->waveFormat = *mixFormat;
+    
     REFERENCE_TIME bufferDuration = 10000000; // 1 second
     hr = player->audioClient->Initialize(
         AUDCLNT_SHAREMODE_SHARED,
         0,
         bufferDuration,
         0,
-        &player->waveFormat,
+        mixFormat,
         nullptr
     );
+    CoTaskMemFree(mixFormat);
     
     if (FAILED(hr)) {
-        // Fallback: use system mix format
-        player->audioClient->Release();
-        player->audioClient = nullptr;
-        
-        hr = player->audioDevice->Activate(
-            __uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&player->audioClient
-        );
-        if (SUCCEEDED(hr)) {
-            WAVEFORMATEX* mixFormat = nullptr;
-            HRESULT hr2 = player->audioClient->GetMixFormat(&mixFormat);
-            if (SUCCEEDED(hr2)) {
-                hr = player->audioClient->Initialize(
-                    AUDCLNT_SHAREMODE_SHARED,
-                    0,
-                    bufferDuration,
-                    0,
-                    mixFormat,
-                    nullptr
-                );
-                if (SUCCEEDED(hr)) {
-                    player->waveFormat = *mixFormat;
-                }
-                CoTaskMemFree(mixFormat);
-            }
-        }
+        return false;
     }
     
-    if (FAILED(hr)) {
-        return JNI_FALSE;
-    }
-    
-    // Get buffer size
     hr = player->audioClient->GetBufferSize(&player->bufferFrameCount);
-    if (FAILED(hr)) return JNI_FALSE;
+    if (FAILED(hr)) return false;
     
-    // Get render client
     hr = player->audioClient->GetService(
         __uuidof(IAudioRenderClient), (void**)&player->renderClient
     );
-    if (FAILED(hr)) return JNI_FALSE;
+    if (FAILED(hr)) return false;
     
-    return JNI_TRUE;
+    return true;
+}
+
+JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadFile(JNIEnv* env, jclass clazz, jlong handle, jstring filePath) {
+    if (!handle) return JNI_FALSE;
+    
+    AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
+    
+    std::wstring path = UTF8ToWString(env, filePath);
+    if (path.empty()) return JNI_FALSE;
+    
+    if (!ParseWavFile(path.c_str(), player->audioData, player->sourceFormat)) {
+        return JNI_FALSE;
+    }
+    
+    player->waveFormat = player->sourceFormat;
+    player->totalSamples = player->audioData.size() / player->sourceFormat.nBlockAlign;
+    player->currentPosition = 0;
+    
+    return InitAudioClient(player) ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_loadMemory(JNIEnv* env, jclass clazz, jlong handle, jbyteArray data) {
+    if (!handle || !data) return JNI_FALSE;
+    
+    AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
+    jsize len = env->GetArrayLength(data);
+    if (len < 44) return JNI_FALSE;
+    
+    jbyte* bytes = env->GetByteArrayElements(data, nullptr);
+    if (!bytes) return JNI_FALSE;
+    
+    bool parsed = ParseWavMemory(reinterpret_cast<const BYTE*>(bytes), static_cast<size_t>(len), player->audioData, player->sourceFormat);
+    env->ReleaseByteArrayElements(data, bytes, JNI_ABORT);
+    
+    if (!parsed) return JNI_FALSE;
+    
+    player->waveFormat = player->sourceFormat;
+    player->totalSamples = player->audioData.size() / player->sourceFormat.nBlockAlign;
+    player->currentPosition = 0;
+    
+    return InitAudioClient(player) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_play(JNIEnv* env, jclass clazz, jlong handle) {
@@ -489,10 +495,10 @@ JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_getPosition(JNIEnv* env, 
     
     AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
     
-    if (player->waveFormat.nSamplesPerSec == 0) return 0;
+    if (player->sourceFormat.nSamplesPerSec == 0) return 0;
     
-    // Convert samples to milliseconds
-    return (player->currentPosition * 1000) / player->waveFormat.nSamplesPerSec;
+    // Convert source frames to milliseconds
+    return (player->currentPosition * 1000) / player->sourceFormat.nSamplesPerSec;
 }
 
 JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_getDuration(JNIEnv* env, jclass clazz, jlong handle) {
@@ -500,10 +506,10 @@ JNIEXPORT jlong JNICALL Java_fastaudio_FastAudioPlayer_getDuration(JNIEnv* env, 
     
     AudioPlayer* player = reinterpret_cast<AudioPlayer*>(handle);
     
-    if (player->waveFormat.nSamplesPerSec == 0) return 0;
+    if (player->sourceFormat.nSamplesPerSec == 0) return 0;
     
-    // Convert total samples to milliseconds
-    return (player->totalSamples * 1000) / player->waveFormat.nSamplesPerSec;
+    // Convert source total samples to milliseconds
+    return (player->totalSamples * 1000) / player->sourceFormat.nSamplesPerSec;
 }
 
 JNIEXPORT jboolean JNICALL Java_fastaudio_FastAudioPlayer_isPlaying(JNIEnv* env, jclass clazz, jlong handle) {

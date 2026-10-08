@@ -59,6 +59,7 @@ public class FastAudioPlayer {
     private static native long createPlayer();
     private static native void destroyPlayer(long handle);
     private static native boolean loadFile(long handle, String filePath);
+    private static native boolean loadMemory(long handle, byte[] data);
     private static native boolean play(long handle);
     private static native boolean pause(long handle);
     private static native boolean resume(long handle);
@@ -98,6 +99,17 @@ public class FastAudioPlayer {
      */
     public boolean load(File file) {
         return load(file.getAbsolutePath());
+    }
+
+    /**
+     * Load audio directly from in-memory byte array (zero-disk roundtrip).
+     * @param data Audio byte buffer (WAV)
+     * @return true if loaded successfully
+     */
+    public boolean load(byte[] data) {
+        checkHandle();
+        if (data == null || data.length == 0) return false;
+        return loadMemory(nativeHandle, data);
     }
     
     /**

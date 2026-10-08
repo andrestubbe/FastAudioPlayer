@@ -38,7 +38,7 @@ if not exist "target\classes\native" mkdir "target\classes\native"
 cl.exe /nologo /O2 /arch:AVX2 /std:c++17 /MD /LD /D_CRT_SECURE_NO_WARNINGS ^
     /I"%JAVA_HOME%\include" ^
     /I"%JAVA_HOME%\include\win32" ^
-    native/fastaudioplayer.cpp ^
+    native\src\fastaudioplayer.cpp ^
     /Fo:build\fastaudioplayer.obj ^
     /link /DLL /OUT:build\fastaudioplayer.dll user32.lib gdi32.lib shcore.lib advapi32.lib dwmapi.lib ole32.lib oleaut32.lib
 
@@ -47,6 +47,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
+copy /Y build\fastaudioplayer.dll src\main\resources\fastaudioplayer.dll
 copy /Y build\fastaudioplayer.dll src\main\resources\native\fastaudioplayer.dll
 copy /Y build\fastaudioplayer.dll src\main\resources\win32-x86-64\fastaudioplayer.dll
 copy /Y build\fastaudioplayer.dll target\classes\native\fastaudioplayer.dll
